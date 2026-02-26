@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Olá Mundo Estilizado</title>
+    <style>
+        /* O CSS começa aqui */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #121212; /* Fundo escuro */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h1 {
+            font-size: 4rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            /* Efeito de degradê no texto */
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 2px 10px rgba(0,0,0,0.5));
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Olá, Mundo!</h1>
+
+</body>
+</html>
