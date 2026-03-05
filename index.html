@@ -1,122 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body> 
-    <h1>Olá, Mundo!</h1>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olá,Mundo! com Estilo</title>
-    <style>
-        body {
-            background-color: #e9ecef;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .contenedor {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            border-top: 5px solid #007bff; /* Una línea azul arriba */
-        }
-        h1 { color: #333; }
-        p { color: #666; }
-    </style>
-</head>
-<body>
-
-    <div class="contenedor">
-        <h1>Olá, mundo!</h1>
-        <p>Mi sitio ahora tiene mucho más estilo.</p>
-    </div>
-
-</body>
-</html>
-
-
-<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olá, Mundo! com Estilo UFC</title>
+    <title>UFC - Página Oficial</title>
     <style>
+        /* Reset básico e centralização total */
         body {
-            background-color: #1a1a1a; /* Fundo escuro para combinar com luta */
-            font-family: 'Arial Black', sans-serif;
+            background-color: #000; /* Fundo preto estilo arena */
+            font-family: 'Arial Black', Gadget, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            color: white;
         }
 
         .contenedor {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #111; /* Cinza muito escuro */
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(210, 10, 10, 0.3); /* Brilho vermelho suave */
             text-align: center;
-            border-top: 6px solid #d20a0a; /* Vermelho UFC */
-            max-width: 400px;
+            border: 2px solid #d20a0a; /* Borda vermelha UFC */
+            max-width: 450px;
+            width: 90%;
         }
 
-        h1 { color: #222; text-transform: uppercase; }
-        p { color: #555; margin-bottom: 25px; }
+        h1 {
+            font-size: 3rem;
+            margin: 0 0 10px 0;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
 
-        /* --- ESTILO DO BOTÃO UFC --- */
+        p {
+            color: #aaa;
+            font-family: 'Arial', sans-serif;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* --- BOTÃO COM FUNDO DE LUVAS --- */
         .btn-ufc {
-            display: inline-block;
-            padding: 20px 40px;
+            display: block;
+            padding: 25px;
             color: white;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2rem;
-            border-radius: 8px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            border-radius: 10px;
             text-transform: uppercase;
             
-            /* Imagem de fundo (Luvas) */
-            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                              url('https://img.freepik.com/fotos-premium/luvas-de-boxe-pretas-isoladas-no-fundo-branco_104677-440.jpg');
+            /* Imagem de luvas com overlay escuro */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://img.freepik.com/fotos-premium/luvas-de-boxe-pretas-isoladas-no-fundo-branco_104677-440.jpg');
             background-size: cover;
             background-position: center;
             
-            border: 2px solid #d20a0a;
-            transition: transform 0.3s, box-shadow 0.3s;
+            border: 3px solid #d20a0a;
+            transition: all 0.4s ease;
+            box-shadow: inset 0 0 0 0 #d20a0a;
         }
 
         .btn-ufc:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(210, 10, 10, 0.4);
-            background-image: linear-gradient(rgba(210,10,10,0.4), rgba(210,10,10,0.4)), 
-                              url('https://img.freepik.com/fotos-premium/luvas-de-boxe-pretas-isoladas-no-fundo-branco_104677-440.jpg');
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(210, 10, 10, 0.6);
+            border-color: #fff;
+            filter: brightness(1.2);
         }
     </style>
 </head>
 <body>
 
     <div class="contenedor">
-        <h1>Olá, mundo!</h1>
-        <p>Prepare-se para o combate.</p>
+        <h1>UFC</h1>
+        <p>Prepare-se para o combate</p>
         
         <a href="https://www.ufc.com.br" target="_blank" class="btn-ufc">
-            Acessar UFC
+            Acessar Site Oficial
         </a>
     </div>
 
