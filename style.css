@@ -33,4 +33,41 @@
     <h1>Olá, Mundo!</h1>
 
 </body>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hola Mundo con Estilo</title>
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .contenedor {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #007bff; /* Una línea azul arriba */
+        }
+        h1 { color: #333; }
+        p { color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <h1>¡Hola, mundo!</h1>
+        <p>Mi sitio ahora tiene mucho más estilo.</p>
+    </div>
+
+</body>
 </html>
