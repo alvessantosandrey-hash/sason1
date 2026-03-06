@@ -349,3 +349,112 @@
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Game de Tiro</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center;">
+        <h2>Use as Setas para mover e ESPAÇO para atirar</h2>
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configurações do Jogador
+        const player = {
+            x: canvas.width / 2 - 15,
+            y: canvas.height - 40,
+            w: 30,
+            h: 30,
+            speed: 5,
+            color: '#0095DD'
+        };
+
+        // Lista de tiros
+        let bullets = [];
+        const bulletSpeed = 7;
+
+        // Controle de teclas
+        const keys = {};
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function shoot() {
+            bullets.push({
+                x: player.x + player.w / 2 - 2,
+                y: player.y,
+                w: 4,
+                h: 10,
+                color: 'yellow'
+            });
+        }
+
+        // Evento único para o tiro (evita metralhadora infinita ao segurar)
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space') shoot();
+        });
+
+        function update() {
+            // Movimentação
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+
+            // Atualizar tiros
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bulletSpeed;
+                // Remover tiro se sair da tela
+                if (bullet.y < 0) bullets.splice(index, 1);
+            });
+        }
+
+        function draw() {
+            // Limpar tela
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar Jogador
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+
+            // Desenhar Tiros
+            ctx.fillStyle = 'yellow';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
+            });
+
+            requestAnimationFrame(() => {
+                update();
+                draw();
+            });
+        }
+
+        // Iniciar loop
+        draw();
+    </script>
+</body>
+</html>
