@@ -260,3 +260,98 @@
 </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Shadow Fight Arena</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #000; /* Fundo preto */
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #gameContainer { position: relative; }
+        canvas { 
+            background: #000; 
+            display: block; 
+            border-bottom: 5px solid #333; /* Chão visual */
+        }
+        .ui { 
+            position: absolute; 
+            top: 20px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: space-around; 
+            pointer-events: none; 
+        }
+        .healthBar { 
+            width: 350px; 
+            height: 25px; 
+            background: #222; 
+            border: 2px solid #555; 
+        }
+        .healthFill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #ff0000, #ff5555); 
+            width: 100%; 
+            transition: width 0.1s; 
+        }
+        .instructions {
+            color: #555;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div class="ui">
+        <div class="healthBar"><div id="p1Health" class="healthFill"></div></div>
+        <div class="healthBar"><div id="p2Health" class="healthFill"></div></div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<div class="instructions">
+    P1: [W,A,D] Pular/Mover - [Espaço] Bater | P2: [Setas] Pular/Mover - [M] Bater
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 1000;
+    canvas.height = 500;
+
+    const gravity = 0.8;
+
+    class Fighter {
+        constructor({ position, velocity, color, offset, name }) {
+            this.position = position;
+            this.velocity = velocity;
+            this.width = 60;
+            this.height = 120;
+            this.color = color;
+            this.health = 100;
+            this.isAttacking = false;
+            this.attackBox = {
+                position: { x: this.position.x, y: this.position.y },
+                offset,
+                width: 120,
+                height: 50
+            };
+        }
+
+        draw() {
+            // Corpo do lutador
+            ctx.fillStyle =
