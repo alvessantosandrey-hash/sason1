@@ -135,3 +135,76 @@
             document.getElementById('hp2').innerText = p2.hp;
 
             if (p1.hp <= 0 || p2.hp
+
+
+                <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma Duel 2P</title>
+    <style>
+        body { margin: 0; background: #121212; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: #fff; font-family: sans-serif; overflow: hidden; }
+        canvas { background: #1e1e2e; border: 3px solid #444; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .stats { width: 800px; display: flex; justify-content: space-around; margin-bottom: 10px; font-size: 20px; font-weight: bold; }
+        .p1 { color: #4facfe; }
+        .p2 { color: #f093fb; }
+    </style>
+</head>
+<body>
+
+    <div class="stats">
+        <div class="p1">P1 Vida: <span id="hp1">100</span></div>
+        <div class="p2">P2 Vida: <span id="hp2">100</span></div>
+    </div>
+    <canvas id="game" width="800" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        const config = { gravity: 0.5, jumpPower: -12, speed: 5 };
+        const keys = {};
+        window.onkeydown = e => keys[e.code] = true;
+        window.onkeyup = e => keys[e.code] = false;
+
+        // Plataformas: [x, y, largura, altura]
+        const platforms = [
+            {x: 0, y: 460, w: 800, h: 40},  // Chão
+            {x: 100, y: 320, w: 200, h: 20}, // Plataforma esq
+            {x: 500, y: 320, w: 200, h: 20}, // Plataforma dir
+            {x: 300, y: 200, w: 200, h: 20}  // Plataforma central
+        ];
+
+        class Player {
+            constructor(x, y, color, controls, side) {
+                this.x = x; this.y = y; this.w = 30; this.h = 40;
+                this.vx = 0; this.vy = 0;
+                this.color = color; this.controls = controls;
+                this.hp = 100; this.onGround = false;
+                this.facing = side; // 1 para direita, -1 para esquerda
+                this.lastShot = 0;
+            }
+
+            update() {
+                // Movimento lateral
+                if (keys[this.controls.left]) { this.vx = -config.speed; this.facing = -1; }
+                else if (keys[this.controls.right]) { this.vx = config.speed; this.facing = 1; }
+                else { this.vx = 0; }
+
+                // Pulo
+                if (keys[this.controls.up] && this.onGround) {
+                    this.vy = config.jumpPower;
+                    this.onGround = false;
+                }
+
+                // Gravidade e Física
+                this.vy += config.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Colisão com plataformas
+                this.onGround = false;
+                platforms.forEach(p => {
+                    if (this.x < p.x + p.w && this.x + this.w > p.x &&
+                        this.y + this.h > p.y && this.y + this.h < p.y + p.h && this.vy >= 0) {
+                        this.
