@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ping Pong - 2 Players</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #111;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #000;
+            border: 5px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        .placar {
+            font-size: 48px;
+            margin-bottom: 10px;
+            letter-spacing: 20px;
+        }
+        .instrucoes {
+            margin-top: 15px;
+            color: #888;
+            display: flex;
+            gap: 50px;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="placar">
+        <span id="score1">0</span>
+        <span id="score2">0</span>
+    </div>
+
+    <canvas id="pong" width="800" height="400"></canvas>
+
+    <div class="instrucoes">
+        <span>Jogador 1: W / S</span>
+        <span>Jogador 2: Seta Cima / Baixo</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("pong");
+        const ctx = canvas.getContext("2d");
+
+        // Objetos do Jogo
+        const paddleWidth = 10, paddleHeight = 80;
+        
+        const player1 = { x: 0, y: canvas.height/2 - paddleHeight/2, w: paddleWidth, h: paddleHeight, score: 0, color: "#fff" };
+        const player2 = { x: canvas.width - paddleWidth, y: canvas.height/2 - paddleHeight/2, w: paddleWidth, h: paddleHeight, score: 0, color: "#fff" };
+        const ball = { x: canvas.width/2, y: canvas.height/2, radius: 8, speed: 5, velocityX: 5, velocityY: 5, color: "#0f0" };
+
+        // Teclas pressionadas
+        const keys = {};
+        window.addEventListener("keydown", e => keys[e.code] = true);
+        window.addEventListener("keyup", e => keys[e.code] = false);
+
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w, h);
+        }
+
+        function drawCircle(x, y, r, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.velocityX = -ball.velocityX; // Inverte a direção
+            ball.speed = 5;
+        }
+
+        function update() {
+            // Movimento Player 1 (W e S)
+            if (keys['KeyW'] && player1.y > 0) player1.y -= 8;
+            if (keys['KeyS'] && player1.y < canvas.height - player1.h) player1.y += 8;
+
+            // Movimento Player 2 (Setas)
+            if (keys['ArrowUp'] && player2.y > 0) player2.y -= 8;
+            if (keys['ArrowDown'] && player2.y < canvas.height - player2.h) player2.y += 8;
+
+            // Movimento da bola
+            ball.x += ball.velocityX;
+            ball.y += ball.velocityY;
+
+            // Colisão com teto e chão
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.velocityY = -ball.velocityY;
+            }
+
+            // Verificar qual player a bola está atingindo
+            let player = (ball.x < canvas.width / 2) ? player1 : player2;
+
+            // Colisão com raquetes
+            if (collision(ball, player)) {
+                // Onde a bola atingiu a raquete (-1 a 1)
+                let collidePoint = (ball.y - (player.y + player.h/2)) / (player.h/2);
+                let angleRad = (Math.PI / 4) * collidePoint;
+                
+                let direction = (ball.x < canvas.width / 2) ? 1 : -1;
+                ball.velocityX = direction * ball.speed * Math.cos(angleRad);
+                ball.velocityY = ball.speed * Math.sin(angleRad);
+                
+                // Aumenta a velocidade a cada rebatida
+                ball.speed += 0.5;
+            }
+
+            // Pontuação
+            if (ball.x - ball.radius < 0) {
+                player2.score++;
+                document.getElementById("score2").innerText = player2.score;
+                resetBall();
+            } else if (ball.x + ball.radius > canvas.width) {
+                player1.score++;
+                document.getElementById("score1").innerText = player1.score;
+                resetBall();
+            }
+        }
+
+        function collision(b, p) {
+            return b.x + b.radius > p.x && b.x - b.radius < p.x + p.w &&
+                   b.y + b.radius > p.y && b.y - b.radius < p.y + p.h;
+        }
+
+        function draw() {
+            // Limpa o campo
+            drawRect(0, 0, canvas.width, canvas.height, "#000");
+
+            // Linha central
+            for(let i=0; i <= canvas.height; i+=20) {
+                drawRect(canvas.width/2 - 1, i, 2, 10, "#333");
+            }
+
+            // Desenha Raquetes e Bola
+            drawRect(player1.x, player1.y, player1.w, player1.h, player1.color);
+            drawRect(player2.x, player2.y, player2.w, player2.h, player2.color);
+            drawCircle(ball.x, ball.y, ball.radius, ball.color);
+        }
+
+        function game() {
+            update();
+            draw();
+        }
+
+        // Loop a 60 frames por segundo
+        setInterval(game, 1000/60);
+    </script>
+</body>
+</html>
