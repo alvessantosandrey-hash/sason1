@@ -355,3 +355,170 @@
         draw() {
             // Corpo do lutador
             ctx.fillStyle =
+
+
+                <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Shadow Combat - Física Real</title>
+    <style>
+        body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { background: #050505; border-bottom: 4px solid #222; box-shadow: 0 0 20px rgba(255,255,255,0.05); }
+        .ui { position: absolute; top: 30px; width: 900px; display: flex; justify-content: space-between; }
+        .hb-container { width: 400px; height: 20px; background: #111; border: 1px solid #444; }
+        .fill { height: 100%; width: 100%; transition: width 0.1s ease-out; }
+        #p1Fill { background: #0088ff; box-shadow: 0 0 10px #0088ff; }
+        #p2Fill { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+    </style>
+</head>
+<body>
+
+<div class="ui">
+    <div class="hb-container"><div id="p1Fill" class="fill"></div></div>
+    <div class="hb-container"><div id="p2Fill" class="fill"></div></div>
+</div>
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 1000;
+canvas.height = 500;
+
+const gravity = 0.8;
+const friction = 0.9; // Fricção para parar o empurrão gradualmente
+
+class Fighter {
+    constructor({ x, y, color, controls, side }) {
+        this.pos = { x, y };
+        this.vel = { x: 0, y: 0 };
+        this.width = 60;
+        this.height = 130;
+        this.color = color;
+        this.controls = controls;
+        this.health = 100;
+        this.isAttacking = false;
+        this.side = side; // 1 para direita, -1 para esquerda
+        this.knockback = { x: 0 };
+    }
+
+    draw() {
+        // Personagem
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+
+        // Feedback de Ataque
+        if (this.isAttacking) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+            const attackX = this.side === 1 ? this.pos.x + this.width : this.pos.x - 70;
+            ctx.fillRect(attackX, this.pos.y + 30, 70, 20);
+        }
+    }
+
+    update() {
+        this.draw();
+
+        // Aplicar Movimento + Knockback
+        this.pos.x += this.vel.x + this.knockback.x;
+        this.pos.y += this.vel.y;
+        
+        // Reduzir knockback gradualmente (física de inércia)
+        this.knockback.x *= friction;
+
+        // Gravidade
+        if (this.pos.y + this.height + this.vel.y >= canvas.height) {
+            this.vel.y = 0;
+            this.pos.y = canvas.height - this.height;
+        } else {
+            this.vel.y += gravity;
+        }
+
+        // Bordas da tela
+        if (this.pos.x < 0) this.pos.x = 0;
+        if (this.pos.x + this.width > canvas.width) this.pos.x = canvas.width - this.width;
+    }
+
+    attack(target) {
+        if (this.isAttacking) return;
+        this.isAttacking = true;
+
+        // Lógica de acerto físico
+        const attackX = this.side === 1 ? this.pos.x + this.width : this.pos.x - 70;
+        const hit = (
+            attackX + 70 >= target.pos.x &&
+            attackX <= target.pos.x + target.width &&
+            this.pos.y + 30 + 20 >= target.pos.y &&
+            this.pos.y + 30 <= target.pos.y + target.height
+        );
+
+        if (hit) {
+            target.health -= 5;
+            target.knockback.x = this.side * 15; // O "Soco" empurra
+            target.vel.y = -5; // Leve levantada no ar
+        }
+
+        setTimeout(() => this.isAttacking = false, 200);
+    }
+}
+
+const p1 = new Fighter({ x: 100, y: 0, color: '#0088ff', side: 1 });
+const p2 = new Fighter({ x: 800, y: 0, color: '#ffaa00', side: -1 });
+
+const keys = {};
+window.onkeydown = (e) => keys[e.key] = true;
+window.onkeyup = (e) => keys[e.key] = false;
+
+function resolveBodyCollision(a, b) {
+    // Impede que um passe por dentro do outro
+    if (a.pos.x < b.pos.x + b.width && a.pos.x + a.width > b.pos.x &&
+        a.pos.y < b.pos.y + b.height && a.pos.y + a.height > b.pos.y) {
+        
+        if (a.pos.x < b.pos.x) {
+            a.pos.x -= 2;
+            b.pos.x += 2;
+        } else {
+            a.pos.x += 2;
+            b.pos.x -= 2;
+        }
+    }
+}
+
+function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Controles P1 (WASD + Espaço)
+    p1.vel.x = 0;
+    if (keys['a']) { p1.vel.x = -6; p1.side = -1; }
+    if (keys['d']) { p1.vel.x = 6; p1.side = 1; }
+    if (keys['w'] && p1.pos.y >= canvas.height - p1.height) p1.vel.y = -18;
+    if (keys[' ']) p1.attack(p2);
+
+    // Controles P2 (Setas + M)
+    p2.vel.x = 0;
+    if (keys['ArrowLeft']) { p2.vel.x = -6; p2.side = -1; }
+    if (keys['ArrowRight']) { p2.vel.x = 6; p2.side = 1; }
+    if (keys['ArrowUp'] && p2.pos.y >= canvas.height - p2.height) p2.vel.y = -18;
+    if (keys['m']) p2.attack(p1);
+
+    resolveBodyCollision(p1, p2);
+
+    p1.update();
+    p2.update();
+
+    // Atualizar UI
+    document.getElementById('p1Fill').style.width = p1.health + '%';
+    document.getElementById('p2Fill').style.width = p2.health + '%';
+
+    if (p1.health <= 0 || p2.health <= 0) {
+        alert("KO!");
+        location.reload();
+    }
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+</body>
+</html>
