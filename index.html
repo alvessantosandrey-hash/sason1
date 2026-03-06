@@ -724,3 +724,148 @@
 
         function gameOver() {
             gameActive = false;
+
+
+            <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Invasão a cada 4 Segundos</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #000;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 15px #00ff0055;
+        }
+        .ui { margin-bottom: 10px; font-size: 1.2rem; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="ui">Inimigos Abatidos: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="500" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+
+        let score = 0;
+        let gameActive = true;
+
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 60,
+            w: 40,
+            h: 40,
+            speed: 8,
+            color: '#00ff00'
+        };
+
+        let bullets = [];
+        let enemies = [];
+        const keys = {};
+
+        // Controles
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            if (e.code === 'Space' && gameActive) shoot();
+        });
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function shoot() {
+            bullets.push({ x: player.x + player.w / 2 - 2, y: player.y, w: 4, h: 12 });
+        }
+
+        // FUNÇÃO QUE GERA OS BICHOS
+        function spawnEnemy() {
+            if (!gameActive) return;
+            
+            // Tamanho aleatório entre 20 e 50
+            const size = Math.random() * 30 + 20; 
+            const x = Math.random() * (canvas.width - size);
+            
+            enemies.push({
+                x: x,
+                y: -size,
+                w: size,
+                h: size,
+                speed: 1.5,
+                color: '#ff0055'
+            });
+        }
+
+        // CONFIGURAÇÃO: Inimigos nascem a cada 4000ms (4 segundos)
+        setInterval(spawnEnemy, 4000);
+
+        function update() {
+            if (!gameActive) return;
+
+            // Movimento Jogador
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+
+            // Movimento Tiros
+            bullets.forEach((b, i) => {
+                b.y -= 10;
+                if (b.y < 0) bullets.splice(i, 1);
+            });
+
+            // Movimento e Colisão Inimigos
+            enemies.forEach((en, enIdx) => {
+                en.y += en.speed;
+
+                // Colisão com Jogador ou Base
+                if (en.y > canvas.height || 
+                   (player.x < en.x + en.w && player.x + player.w > en.x &&
+                    player.y < en.y + en.h && player.y + player.h > en.y)) {
+                    gameActive = false;
+                }
+
+                // Colisão com Tiros
+                bullets.forEach((b, bIdx) => {
+                    if (b.x < en.x + en.w && b.x + b.w > en.x &&
+                        b.y < en.y + en.h && b.y + b.h > en.y) {
+                        enemies.splice(enIdx, 1);
+                        bullets.splice(bIdx, 1);
+                        score++;
+                        scoreDisplay.innerText = score;
+                    }
+                });
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha Jogador
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+
+            // Desenha Tiros
+            ctx.fillStyle = "#fff";
+            bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+
+            // Desenha Inimigos
+            enemies.forEach(en => {
+                ctx.fillStyle = en.color;
+                ctx.fillRect(en.x, en.y, en.w, en.h);
+                // Detalhe visual (olhos do bicho)
+                ctx.fillStyle = "white";
+                ctx.fillRect(en.x + 5, en.y + 5, 5, 5);
+                ctx.fillRect(en.x + en.w - 10, en.y + 5, 5, 5);
+            });
+
+            if
