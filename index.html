@@ -458,3 +458,111 @@
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo de Tiro - Invasão</title>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #1a1a1a; color: white; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        canvas { border: 4px solid #333; background-color: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .hud { position: absolute; top: 20px; font-size: 24px; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div class="hud">Score: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="600" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        let score = 0;
+        let frames = 0;
+
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 50,
+            w: 40,
+            h: 30,
+            speed: 6,
+            color: '#00ffcc'
+        };
+
+        let bullets = [];
+        let enemies = [];
+
+        const keys = {};
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            if (e.code === 'Space') shoot();
+        });
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function shoot() {
+            bullets.push({ x: player.x + player.w / 2 - 2, y: player.y, w: 4, h: 10 });
+        }
+
+        function spawnEnemy() {
+            // Cria um inimigo em uma posição X aleatória
+            const size = 30;
+            const x = Math.random() * (canvas.width - size);
+            enemies.push({ x: x, y: -size, w: size, h: size, speed: 2 });
+        }
+
+        function rectIntersect(r1, r2) {
+            return !(r2.x > r1.x + r1.w || 
+                     r2.x + r2.w < r1.x || 
+                     r2.y > r1.y + r1.h ||
+                     r2.y + r2.h < r1.y);
+        }
+
+        function update() {
+            frames++;
+
+            // Movimento do Jogador
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+
+            // Criar inimigos a cada 60 frames (aprox. 1 segundo)
+            if (frames % 60 === 0) spawnEnemy();
+
+            // Atualizar Tiros
+            bullets.forEach((b, i) => {
+                b.y -= 8;
+                if (b.y < 0) bullets.splice(i, 1);
+            });
+
+            // Atualizar Inimigos
+            enemies.forEach((en, i) => {
+                en.y += en.speed;
+
+                // Colisão Tiro vs Inimigo
+                bullets.forEach((b, bi) => {
+                    if (rectIntersect(b, en)) {
+                        enemies.splice(i, 1);
+                        bullets.splice(bi, 1);
+                        score += 10;
+                        scoreElement.innerText = score;
+                    }
+                });
+
+                // Game Over básico (inimigo passou da tela ou tocou no player)
+                if (en.y > canvas.height || rectIntersect(player, en)) {
+                    enemies = [];
+                    score = 0;
+                    scoreElement.innerText = score;
+                    player.x = canvas.width / 2 - 20; // Reset posição
+                }
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Jogador
+            ctx.fillStyle = player.color;
