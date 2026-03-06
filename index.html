@@ -735,3 +735,78 @@ loop();
 
 </body>
 </html>
+
+
+    <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Duelo de 2 Jogadores</title>
+    <style>
+        body { margin: 0; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: white; font-family: sans-serif; overflow: hidden; }
+        canvas { background: #000; border: 4px solid #555; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .instrucoes { display: flex; gap: 50px; margin-top: 10px; }
+        .p1 { color: #3498db; }
+        .p2 { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <h2 id="status">Duelo: 0 - 0</h2>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <div class="instrucoes">
+        <div class="p1"><strong>J1:</strong> W/S (Move) | D (Atira)</div>
+        <div class="p2"><strong>J2:</strong> Setas (Move) | Esquerda (Atira)</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusTxt = document.getElementById('status');
+
+        // Configurações dos Jogadores
+        const playerWidth = 20, playerHeight = 60;
+        const p1 = { x: 50, y: 170, color: '#3498db', score: 0, dy: 0 };
+        const p2 = { x: 730, y: 170, color: '#e74c3c', score: 0, dy: 0 };
+        
+        let bullets = [];
+        const speed = 5;
+        const bulletSpeed = 7;
+
+        // Controle de teclas
+        const keys = {};
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function update() {
+            // Movimento J1
+            if (keys['KeyW'] && p1.y > 0) p1.y -= speed;
+            if (keys['KeyS'] && p1.y < canvas.height - playerHeight) p1.y += speed;
+            
+            // Movimento J2
+            if (keys['ArrowUp'] && p2.y > 0) p2.y -= speed;
+            if (keys['ArrowDown'] && p2.y < canvas.height - playerHeight) p2.y += speed;
+
+            // Atirar (Cooldown simples usando o frameCount)
+            if (keys['KeyD'] && Math.random() < 0.05) fire(p1, 1);
+            if (keys['ArrowLeft'] && Math.random() < 0.05) fire(p2, -1);
+
+            // Atualizar Balas
+            bullets.forEach((b, index) => {
+                b.x += b.vx;
+
+                // Colisão com J1
+                if (b.vx < 0 && b.x < p1.x + playerWidth && b.x > p1.x && b.y > p1.y && b.y < p1.y + playerHeight) {
+                    p2.score++;
+                    resetRound();
+                }
+                // Colisão com J2
+                if (b.vx > 0 && b.x > p2.x && b.x < p2.x + playerWidth && b.y > p2.y && b.y < p2.y + playerHeight) {
+                    p1.score++;
+                    resetRound();
+                }
+
+                // Remover balas fora da tela
+                if (b.x < 0 || b.x > canvas.width) bullets.splice(index, 1);
+            });
