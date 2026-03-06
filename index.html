@@ -626,3 +626,112 @@ loop();
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             position: relative;
         }
+
+
+        <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Heróis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 { margin-bottom: 40px; color: #e94560; }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 15px;
+            width: 250px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+            border-color: #e94560;
+        }
+
+        .emoji { font-size: 50px; margin-bottom: 10px; display: block; }
+
+        h2 { margin: 10px 0; font-size: 1.5rem; }
+
+        .poder-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .poder-descricao {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e94560;
+            border-radius: 8px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover .poder-descricao {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Personagens & Poderes</h1>
+
+    <div class="container">
+        <div class="card">
+            <span class="emoji">🔥</span>
+            <h2>Pyro</h2>
+            <p class="poder-label">Poder Principal</p>
+            <div class="poder-descricao">Pirocinese (Controle do Fogo)</div>
+        </div>
+
+        <div class="card">
+            <span class="emoji">❄️</span>
+            <h2>Glacia</h2>
+            <p class="poder-label">Poder Principal</p>
+            <div class="poder-descricao">Criocinese (Congelamento)</div>
+        </div>
+
+        <div class="card">
+            <span class="emoji">⚡</span>
+            <h2>Volt</h2>
+            <p class="poder-label">Poder Principal</p>
+            <div class="poder-descricao">Eletrocinese (Relâmpagos)</div>
+        </div>
+
+        <div class="card">
+            <span class="emoji">🧠</span>
+            <h2>Mindor</h2>
+            <p class="poder-label">Poder Principal</p>
+            <div class="poder-descricao">Telepatia e Teletransporte</div>
+        </div>
+    </div>
+
+</body>
+</html>
