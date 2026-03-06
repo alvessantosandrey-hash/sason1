@@ -522,3 +522,51 @@ loop();
 </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Shadow Combat - Física de Impacto</title>
+    <style>
+        body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        canvas { background: #000; border-bottom: 3px solid #333; }
+        .ui { position: absolute; top: 40px; width: 800px; display: flex; justify-content: space-between; }
+        .bar { width: 350px; height: 15px; background: #222; border: 1px solid #444; }
+        .fill { height: 100%; width: 100%; transition: width 0.1s; }
+        #p1Fill { background: #00f; box-shadow: 0 0 10px #00f; }
+        #p2Fill { background: #f00; box-shadow: 0 0 10px #f00; }
+        .instrucoes { color: #444; margin-top: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="ui">
+    <div class="bar"><div id="p1Fill" class="fill"></div></div>
+    <div class="bar"><div id="p2Fill" class="fill"></div></div>
+</div>
+
+<canvas id="game"></canvas>
+
+<div class="instrucoes">
+    P1: WASD + ESPAÇO
+
+    <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Shadow Combat - Física de Impacto</title>
+    <style>
+        body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        canvas { background: #000; border-bottom: 3px solid #333; }
+        .ui { position: absolute; top: 40px; width: 800px; display: flex; justify-content: space-between; }
+        .bar { width: 350px; height: 15px; background: #222; border: 1px solid #444; }
+        .fill { height: 100%; width: 100%; transition: width 0.1s; }
+        #p1Fill { background: #00f; box-shadow: 0 0 10px #00f; }
+        #p2Fill { background: #f00; box-shadow: 0 0 10px #f00; }
+        .instrucoes { color: #444; margin-top: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
