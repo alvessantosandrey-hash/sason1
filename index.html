@@ -944,3 +944,142 @@ loop();
                 // Remover balas fora da tela
                 if (b.x < 0 || b.x > canvas.width) bullets.splice(index, 1);
             });
+
+
+                    <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Neon Strike 2P</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: white; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        canvas { background: #111; border: 2px solid #333; box-shadow: 0 0 20px rgba(0,255,255,0.1); border-radius: 5px; }
+        .ui { width: 800px; display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.2rem; text-shadow: 0 0 5px currentColor; }
+        .p1 { color: #00d4ff; }
+        .p2 { color: #00ff88; }
+    </style>
+</head>
+<body>
+
+    <div class="ui">
+        <div class="p1">P1 HP: <span id="hp1">100</span></div>
+        <div class="p2">P2 HP: <span id="hp2">100</span></div>
+    </div>
+    <canvas id="game" width="800" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const keys = {};
+
+        window.onkeydown = e => keys[e.code] = true;
+        window.onkeyup = e => keys[e.code] = false;
+
+        class Player {
+            constructor(x, y, color, controls) {
+                this.x = x; this.y = y;
+                this.angle = 0; this.hp = 100;
+                this.color = color; this.controls = controls;
+                this.radius = 15; this.speed = 3; this.rotSpeed = 0.05;
+                this.lastShot = 0;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                // Corpo do tanque
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(-this.radius, -this.radius, this.radius*2, this.radius*2);
+                
+                // Canhão
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(this.radius + 10, 0);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            update() {
+                if (keys[this.controls.left]) this.angle -= this.rotSpeed;
+                if (keys[this.controls.right]) this.angle += this.rotSpeed;
+                
+                if (keys[this.controls.up]) {
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+                }
+                if (keys[this.controls.down]) {
+                    this.x -= Math.cos(this.angle) * this.speed;
+                    this.y -= Math.sin(this.angle) * this.speed;
+                }
+
+                // Bordas
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+
+                if (keys[this.controls.shoot] && Date.now() - this.lastShot > 400) {
+                    bullets.push(new Bullet(this.x, this.y, this.angle, this.color));
+                    this.lastShot = Date.now();
+                }
+            }
+        }
+
+        class Bullet {
+            constructor(x, y, angle, color) {
+                this.x = x; this.y = y;
+                this.vx = Math.cos(angle) * 7;
+                this.vy = Math.sin(angle) * 7;
+                this.color = color;
+                this.life = 100; // Tempo de vida da bala
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            }
+        }
+
+        const p1 = new Player(100, 250, '#00d4ff', { up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD', shoot: 'Space' });
+        const p2 = new Player(700, 250, '#00ff88', { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', shoot: 'Enter' });
+        p2.angle = Math.PI; // Começa virado para a esquerda
+
+        let bullets = [];
+
+        function loop() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.3)'; // Efeito de rastro
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            p1.update(); p1.draw();
+            p2.update(); p2.draw();
+
+            bullets.forEach((b, i) => {
+                b.update(); b.draw();
+
+                // Colisão com P1
+                let d1 = Math.hypot(b.x - p1.x, b.y - p1.y);
+                if (d1 < p1.radius && b.color !== p1.color) {
+                    p1.hp -= 10;
+                    bullets.splice(i, 1);
+                }
+                // Colisão com P2
+                let d2 = Math.hypot(b.x - p2.x, b.y - p2.y);
+                if (d2 < p2.radius && b.color !== p2.color) {
+                    p2.hp -= 10;
+                    bullets.splice(i, 1);
+                }
+
+                if (b.life <= 0) bullets.splice(i, 1);
+            });
+
+            document.getElementById('hp1').innerText = p1.hp;
+            document.getElementById('hp2').innerText = p2.hp;
+
+            if (p1.hp <= 0 || p2.hp
