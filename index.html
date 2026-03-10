@@ -2,119 +2,172 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Zumbi Shooter Pro</title>
+    <title>Zumbi Shooter Pro - Sobrevivência</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: 'Courier New', Courier, monospace; }
-        canvas { display: block; background: #111; cursor: crosshair; }
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; cursor: crosshair; }
         #ui {
             position: absolute; top: 20px; left: 20px;
-            color: #ff4444; font-size: 24px; font-weight: bold;
-            text-shadow: 2px 2px 4px #000; pointer-events: none;
+            color: #ff4444; font-size: 28px; font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5); pointer-events: none;
+            user-select: none;
         }
+        #level { font-size: 16px; color: #aaa; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="ui">PONTOS: <span id="score">0</span></div>
+    <div id="ui">
+        PONTOS: <span id="score">0</span>
+        <span id="level">VELOCIDADE ATUAL: 100%</span>
+    </div>
     <canvas id="gameCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         let score = 0;
         let gameActive = true;
-        const keys = {}; // Armazena teclas pressionadas
+        let speedMultiplier = 1.0;
+        const keys = {};
+        const mouse = { x: 0, y: 0 };
 
-        // Configurações de Velocidade
+        // Configurações Base
         const PLAYER_SPEED = 5;
-        const BULLET_SPEED = 10;
-        const ENEMY_SPEED_MIN = 2;
-        const ENEMY_SPEED_MAX = 4;
-        const SPAWN_RATE = 600; // Milissegundos (menor = mais rápido)
+        const BULLET_SPEED = 12;
+        let SPAWN_RATE = 800;
 
         class Player {
             constructor() {
                 this.x = canvas.width / 2;
                 this.y = canvas.height / 2;
                 this.radius = 15;
+                this.angle = 0;
             }
             draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                // Corpo do Jogador
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = '#3498db';
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
                 ctx.stroke();
+
+                // Arma/Direção
+                ctx.fillStyle = '#555';
+                ctx.fillRect(this.radius - 5, -4, 15, 8);
+                ctx.restore();
             }
             update() {
-                if (keys['w'] || keys['ArrowUp']) this.y -= PLAYER_SPEED;
-                if (keys['s'] || keys['ArrowDown']) this.y += PLAYER_SPEED;
-                if (keys['a'] || keys['ArrowLeft']) this.x -= PLAYER_SPEED;
-                if (keys['d'] || keys['ArrowRight']) this.x += PLAYER_SPEED;
+                if (keys['w'] || keys['arrowup']) this.y -= PLAYER_SPEED;
+                if (keys['s'] || keys['arrowdown']) this.y += PLAYER_SPEED;
+                if (keys['a'] || keys['arrowleft']) this.x -= PLAYER_SPEED;
+                if (keys['d'] || keys['arrowright']) this.x += PLAYER_SPEED;
 
-                // Limites da tela
                 this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
                 this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+                
+                this.angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.color = color;
+                this.radius = Math.random() * 3;
+                this.velocity = { 
+                    x: (Math.random() - 0.5) * 5, 
+                    y: (Math.random() - 0.5) * 5 
+                };
+                this.alpha = 1;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.02;
             }
         }
 
         class Projectile {
-            constructor(x, y, velocity) {
+            constructor(x, y, angle) {
                 this.x = x;
                 this.y = y;
-                this.velocity = velocity;
-                this.radius = 4;
+                this.velocity = { x: Math.cos(angle) * BULLET_SPEED, y: Math.sin(angle) * BULLET_SPEED };
+                this.radius = 3;
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = '#f1c40f';
                 ctx.fill();
+                // Brilho da bala
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#f1c40f';
             }
             update() {
                 this.x += this.velocity.x;
                 this.y += this.velocity.y;
+                ctx.shadowBlur = 0;
             }
         }
 
         class Enemy {
-            constructor(x, y, velocity) {
+            constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.velocity = velocity;
                 this.radius = 18;
+                // Velocidade base que aumenta com o tempo
+                this.speed = (Math.random() * (3 - 1.5) + 1.5) * speedMultiplier;
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#27ae60';
+                ctx.fillStyle = '#2ecc71';
                 ctx.fill();
+                // Detalhe de "olhos"
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(this.x - 5, this.y - 5, 3, 3);
+                ctx.fillRect(this.x + 2, this.y - 5, 3, 3);
             }
             update() {
-                // Persegue o jogador constantemente
                 const angle = Math.atan2(player.y - this.y, player.x - this.x);
-                this.x += Math.cos(angle) * (Math.random() * (ENEMY_SPEED_MAX - ENEMY_SPEED_MIN) + ENEMY_SPEED_MIN);
-                this.y += Math.sin(angle) * (Math.random() * (ENEMY_SPEED_MAX - ENEMY_SPEED_MIN) + ENEMY_SPEED_MIN);
+                this.x += Math.cos(angle) * this.speed;
+                this.y += Math.sin(angle) * this.speed;
             }
         }
 
         const player = new Player();
         const projectiles = [];
         const enemies = [];
+        const particles = [];
 
-        // Controles
         window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
         window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-
-        window.addEventListener('mousedown', (event) => {
-            const angle = Math.atan2(event.clientY - player.y, event.clientX - player.x);
-            const velocity = { x: Math.cos(angle) * BULLET_SPEED, y: Math.sin(angle) * BULLET_SPEED };
-            projectiles.push(new Projectile(player.x, player.y, velocity));
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mousedown', () => {
+            if (!gameActive) return;
+            projectiles.push(new Projectile(player.x, player.y, player.angle));
         });
 
         function spawnEnemies() {
@@ -129,15 +182,30 @@
                 y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
             }
             enemies.push(new Enemy(x, y));
-            setTimeout(spawnEnemies, SPAWN_RATE);
+            setTimeout(spawnEnemies, SPAWN_RATE / speedMultiplier);
+        }
+
+        function drawLightEffect() {
+            const gradient = ctx.createRadialGradient(player.x, player.y, 50, player.x, player.y, 400);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.8)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         function animate() {
             if (!gameActive) return;
             requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(17, 17, 17, 0.3)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // Fundo escurecido
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, i) => {
+                if (particle.alpha <= 0) particles.splice(i, 1);
+                else { particle.update(); particle.draw(); }
+            });
+
             player.update();
             player.draw();
 
@@ -161,13 +229,24 @@
                 projectiles.forEach((p, pIndex) => {
                     const distToBullet = Math.hypot(p.x - enemy.x, p.y - enemy.y);
                     if (distToBullet - enemy.radius - p.radius < 1) {
+                        // Criar partículas na morte
+                        for(let i=0; i<8; i++) particles.push(new Particle(enemy.x, enemy.y, '#2ecc71'));
+                        
                         enemies.splice(index, 1);
                         projectiles.splice(pIndex, 1);
                         score += 10;
                         scoreElement.innerText = score;
+
+                        // Lógica de Velocidade: A cada 10 mortes (100 pontos), aumenta 5%
+                        if (score % 100 === 0) {
+                            speedMultiplier += 0.05;
+                            levelElement.innerText = `VELOCIDADE ATUAL: ${Math.round(speedMultiplier * 100)}%`;
+                        }
                     }
                 });
             });
+
+            drawLightEffect();
         }
 
         spawnEnemies();
@@ -175,32 +254,3 @@
     </script>
 </body>
 </html>
-
-
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Zumbi Shooter: Evolução</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        canvas { display: block; }
-        #ui {
-            position: absolute; top: 20px; left: 20px; color: #fff;
-            font-size: 20px; pointer-events: none; user-select: none;
-        }
-        .stat { color: #2ecc71; font-weight: bold; }
-        #level-up {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #f1c40f; font-size: 40px; font-weight: bold; opacity: 0;
-            transition: opacity 0.5s; pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="ui">
-        PONTOS: <span id="score" class="stat">0</span><br>
-        VELOCIDADE ATUAL: <span id="speed-mult" class="stat">100</span>%
-    </div>
-    <div id="level-up">VEL
