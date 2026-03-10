@@ -392,3 +392,111 @@ draw();
             ctx.fillStyle = "white";
             ctx.fillText("KILL!", Math.random() * canvas.width, Math.random() * canvas.height);
         });
+
+
+        <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Estilo da Tela de Intro */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        /* Título do Jogo */
+        h1 {
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 4rem;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            animation: pulse 2s infinite;
+        }
+
+        /* Botão Start Estilizado */
+        .start-btn {
+            padding: 15px 50px;
+            font-size: 1.5rem;
+            background: transparent;
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .start-btn:hover {
+            background: #00ffcc;
+            color: #000;
+            box-shadow: 0 0 30px #00ffcc;
+        }
+
+        /* Animação do título */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* Esconder a tela de intro */
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Simulação do fundo do jogo */
+        #game-world {
+            background: #222;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <h1>Cyber Quest</h1>
+        <button class="start-btn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game-world">
+        <h2>O Jogo começou! (Seu Canvas ou lógica aqui)</h2>
+    </div>
+
+    <script>
+        function startGame() {
+            const intro = document.getElementById('intro-screen');
+            
+            // Adiciona a classe que faz o fade-out
+            intro.classList.add('hidden');
+
+            // Aqui você inicia a lógica do seu jogo
+            console.log("Jogo Iniciado!");
+            initGameLogic(); 
+        }
+
+        function initGameLogic() {
+            // Exemplo: começar a música ou o loop do canvas
+        }
+    </script>
+</body>
+</html>
