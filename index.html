@@ -143,3 +143,120 @@ draw();
 
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Survival - Arena</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0a0a0a;
+            color: #eee;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #hud {
+            width: 800px;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #1a1a1a;
+            border-bottom: 2px solid #333;
+        }
+
+        .stat-box { font-size: 18px; font-weight: bold; }
+        #hp-bar-container {
+            width: 200px;
+            height: 20px;
+            background: #444;
+            border: 1px solid #fff;
+        }
+        #hp-fill {
+            width: 100%;
+            height: 100%;
+            background: #ff4444;
+            transition: width 0.2s;
+        }
+
+        canvas {
+            background-color: #151515;
+            display: block;
+            cursor: crosshair;
+            border: 3px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .instrucoes {
+            margin-top: 10px;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hud">
+        <div class="stat-box">PONTOS: <span id="score">0</span></div>
+        <div class="stat-box">
+            VIDA
+            <div id="hp-bar-container"><div id="hp-fill"></div></div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="instrucoes">
+        MOVIMENTAÇÃO: <b>WASD</b> | ATIRAR: <b>CLIQUE DO MOUSE</b>
+    </div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+    const hpFill = document.getElementById("hp-fill");
+
+    canvas.width = 800;
+    canvas.height = 550;
+
+    // --- Configurações ---
+    let score = 0;
+    let gameRunning = true;
+
+    const player = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 15,
+        color: '#3498db',
+        speed: 4,
+        hp: 100
+    };
+
+    const bullets = [];
+    const enemies = [];
+    const keys = {};
+
+    // --- Controles ---
+    window.onkeydown = (e) => keys[e.key.toLowerCase()] = true;
+    window.onkeyup = (e) => keys[e.key.toLowerCase()] = false;
+
+    canvas.addEventListener('mousedown', (e) => {
+        if(!gameRunning) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Calcular ângulo da bala
+        const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+        
+        bullets.push({
+            x: player.x,
+            y: player
