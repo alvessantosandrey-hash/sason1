@@ -1,1 +1,101 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Zombie Hunter - Survival</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            background-color: #2d3436;
+            cursor: crosshair;
+            border: 4px solid #444;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-top: 10px;
+        }
+        .ui {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui">Pontos: <span id="score">0</span> | Vidas: <span id="lives">3</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
+
+        // Ajuste do tamanho do canvas
+        canvas.width = 800;
+        canvas.height = 600;
+
+        let score = 0;
+        let lives = 3;
+        let gameActive = true;
+        let enemies = [];
+        let spawnRate = 1000; // 1 segundo inicial
+
+        class Zombie {
+            constructor() {
+                this.radius = 20;
+                // Nasce em bordas aleatórias
+                if (Math.random() < 0.5) {
+                    this.x = Math.random() < 0.5 ? 0 - this.radius : canvas.width + this.radius;
+                    this.y = Math.random() * canvas.height;
+                } else {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() < 0.5 ? 0 - this.radius : canvas.height + this.radius;
+                }
+                
+                this.speed = 1 + Math.random() * 1.5;
+                this.color = '#55efc4'; // Verde zumbi
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = '#00b894';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            update() {
+                // Persegue o centro do canvas (onde o jogador estaria)
+                const dx = (canvas.width / 2) - this.x;
+                const dy = (canvas.height / 2) - this.y;
+                const angle = Math.atan2(dy, dx);
+                
+                this.x += Math.cos(angle) * this.speed;
+                this.y += Math.sin(angle) * this.speed;
+
+                // Checa colisão com o centro (jogador)
+                const dist = Math.hypot(dx, dy);
+                if (dist < this.radius + 10) {
+                    lives--;
+                    livesElement.innerText = lives;
+                    return true; // Remover zumbi após hit
+                }
+                return false;
+            }
+        }
+
+        // Detectar clique para "atirar"
+        canvas.addEventListener('
