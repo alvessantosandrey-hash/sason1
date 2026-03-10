@@ -175,3 +175,32 @@
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Zumbi Shooter: Evolução</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; }
+        #ui {
+            position: absolute; top: 20px; left: 20px; color: #fff;
+            font-size: 20px; pointer-events: none; user-select: none;
+        }
+        .stat { color: #2ecc71; font-weight: bold; }
+        #level-up {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #f1c40f; font-size: 40px; font-weight: bold; opacity: 0;
+            transition: opacity 0.5s; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        PONTOS: <span id="score" class="stat">0</span><br>
+        VELOCIDADE ATUAL: <span id="speed-mult" class="stat">100</span>%
+    </div>
+    <div id="level-up">VEL
