@@ -1,21 +1,21 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Zumbi Shooter JS</title>
+    <title>Zumbi Shooter Pro</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
-        canvas { display: block; background: #222; }
+        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; background: #111; cursor: crosshair; }
         #ui {
-            position: absolute; top: 10px; left: 10px;
-            color: white; font-size: 20px; pointer-events: none;
+            position: absolute; top: 20px; left: 20px;
+            color: #ff4444; font-size: 24px; font-weight: bold;
+            text-shadow: 2px 2px 4px #000; pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="ui">Pontuação: <span id="score">0</span></div>
+    <div id="ui">PONTOS: <span id="score">0</span></div>
     <canvas id="gameCanvas"></canvas>
 
     <script>
@@ -28,21 +28,38 @@
 
         let score = 0;
         let gameActive = true;
+        const keys = {}; // Armazena teclas pressionadas
 
-        // Classes do Jogo
+        // Configurações de Velocidade
+        const PLAYER_SPEED = 5;
+        const BULLET_SPEED = 10;
+        const ENEMY_SPEED_MIN = 2;
+        const ENEMY_SPEED_MAX = 4;
+        const SPAWN_RATE = 600; // Milissegundos (menor = mais rápido)
+
         class Player {
             constructor() {
                 this.x = canvas.width / 2;
                 this.y = canvas.height / 2;
                 this.radius = 15;
-                this.color = '#0095DD';
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
+                ctx.fillStyle = '#3498db';
                 ctx.fill();
-                ctx.closePath();
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+            }
+            update() {
+                if (keys['w'] || keys['ArrowUp']) this.y -= PLAYER_SPEED;
+                if (keys['s'] || keys['ArrowDown']) this.y += PLAYER_SPEED;
+                if (keys['a'] || keys['ArrowLeft']) this.x -= PLAYER_SPEED;
+                if (keys['d'] || keys['ArrowRight']) this.x += PLAYER_SPEED;
+
+                // Limites da tela
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
             }
         }
 
@@ -51,12 +68,12 @@
                 this.x = x;
                 this.y = y;
                 this.velocity = velocity;
-                this.radius = 5;
+                this.radius = 4;
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#ffff00';
+                ctx.fillStyle = '#f1c40f';
                 ctx.fill();
             }
             update() {
@@ -70,17 +87,19 @@
                 this.x = x;
                 this.y = y;
                 this.velocity = velocity;
-                this.radius = 20;
+                this.radius = 18;
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#2ecc71';
+                ctx.fillStyle = '#27ae60';
                 ctx.fill();
             }
             update() {
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
+                // Persegue o jogador constantemente
+                const angle = Math.atan2(player.y - this.y, player.x - this.x);
+                this.x += Math.cos(angle) * (Math.random() * (ENEMY_SPEED_MAX - ENEMY_SPEED_MIN) + ENEMY_SPEED_MIN);
+                this.y += Math.sin(angle) * (Math.random() * (ENEMY_SPEED_MAX - ENEMY_SPEED_MIN) + ENEMY_SPEED_MIN);
             }
         }
 
@@ -88,73 +107,64 @@
         const projectiles = [];
         const enemies = [];
 
-        // Spawn de Inimigos
-        function spawnEnemies() {
-            setInterval(() => {
-                const radius = 20;
-                let x, y;
-                if (Math.random() < 0.5) {
-                    x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
-                    y = Math.random() * canvas.height;
-                } else {
-                    x = Math.random() * canvas.width;
-                    y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
-                }
+        // Controles
+        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-                const angle = Math.atan2(player.y - y, player.x - x);
-                const velocity = { x: Math.cos(angle) * 2, y: Math.sin(angle) * 2 };
-                enemies.push(new Enemy(x, y, velocity));
-            }, 1000);
-        }
-
-        // Evento de Tiro
-        window.addEventListener('click', (event) => {
+        window.addEventListener('mousedown', (event) => {
             const angle = Math.atan2(event.clientY - player.y, event.clientX - player.x);
-            const velocity = { x: Math.cos(angle) * 6, y: Math.sin(angle) * 6 };
+            const velocity = { x: Math.cos(angle) * BULLET_SPEED, y: Math.sin(angle) * BULLET_SPEED };
             projectiles.push(new Projectile(player.x, player.y, velocity));
         });
 
-        // Loop Principal
+        function spawnEnemies() {
+            if (!gameActive) return;
+            const radius = 20;
+            let x, y;
+            if (Math.random() < 0.5) {
+                x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+                y = Math.random() * canvas.height;
+            } else {
+                x = Math.random() * canvas.width;
+                y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+            }
+            enemies.push(new Enemy(x, y));
+            setTimeout(spawnEnemies, SPAWN_RATE);
+        }
+
         function animate() {
             if (!gameActive) return;
             requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Efeito de rastro
+            ctx.fillStyle = 'rgba(17, 17, 17, 0.3)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            player.update();
             player.draw();
 
-            projectiles.forEach((projectile, index) => {
-                projectile.update();
-                projectile.draw();
-                // Remover tiros fora da tela
-                if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width ||
-                    projectile.y + projectile.radius < 0 || projectile.y - projectile.radius > canvas.height) {
-                    projectiles.splice(index, 1);
-                }
+            projectiles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) projectiles.splice(i, 1);
             });
 
             enemies.forEach((enemy, index) => {
                 enemy.update();
                 enemy.draw();
 
-                // Colisão Zumbi vs Jogador (Game Over)
-                const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-                if (dist - enemy.radius - player.radius < 1) {
+                const distToPlayer = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                if (distToPlayer - enemy.radius - player.radius < 1) {
                     gameActive = false;
-                    alert("GAME OVER! Sua pontuação: " + score);
+                    alert("FIM DE JOGO! Zumbis eliminados: " + score/10);
                     location.reload();
                 }
 
-                // Colisão Tiro vs Zumbi
-                projectiles.forEach((projectile, pIndex) => {
-                    const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
-                    if (dist - enemy.radius - projectile.radius < 1) {
-                        setTimeout(() => {
-                            enemies.splice(index, 1);
-                            projectiles.splice(pIndex, 1);
-                            score += 10;
-                            scoreElement.innerHTML = score;
-                        }, 0);
+                projectiles.forEach((p, pIndex) => {
+                    const distToBullet = Math.hypot(p.x - enemy.x, p.y - enemy.y);
+                    if (distToBullet - enemy.radius - p.radius < 1) {
+                        enemies.splice(index, 1);
+                        projectiles.splice(pIndex, 1);
+                        score += 10;
+                        scoreElement.innerText = score;
                     }
                 });
             });
