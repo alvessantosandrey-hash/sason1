@@ -392,3 +392,73 @@
 
 </body>
 </html>
+
+
+        <style>
+    /* Estilização da Barra de Bandeiras */
+    .game-flags-bar {
+        position: absolute; /* Ou 'fixed' se quiser que siga a tela no scroll */
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.7); /* Fundo preto transparente */
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 2px solid #ffd700; /* Borda dourada para estilo 'game' */
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        z-index: 9999; /* Garante que fique acima do cenário do jogo */
+        pointer-events: auto; /* Permite clicar nas bandeiras */
+    }
+
+    .flag-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .flag-container:hover {
+        transform: scale(1.2); /* Efeito de aumento ao passar o mouse */
+    }
+
+    .flag-container img {
+        width: 35px;
+        height: auto;
+        border-radius: 4px;
+        display: block;
+    }
+
+    .flag-container span {
+        color: white;
+        font-family: 'Arial', sans-serif;
+        font-size: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="game-flags-bar">
+    <div class="flag-container" onclick="console.log('Brasil selecionado')">
+        <img src="https://flagcdn.com/w80/br.png" alt="Brasil">
+        <span>BR</span>
+    </div>
+
+    <div class="flag-container" onclick="console.log('EUA selecionado')">
+        <img src="https://flagcdn.com/w80/us.png" alt="USA">
+        <span>EN</span>
+    </div>
+
+    <div class="flag-container" onclick="console.log('Espanha selecionada')">
+        <img src="https://flagcdn.com/w80/es.png" alt="Espanha">
+        <span>ES</span>
+    </div>
+
+    <div class="flag-container" onclick="console.log('França selecionada')">
+        <img src="https://flagcdn.com/w80/fr.png" alt="França">
+        <span>FR</span>
+    </div>
+</div>
