@@ -260,3 +260,74 @@ draw();
         bullets.push({
             x: player.x,
             y: player
+
+
+            <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <style>
+        body { margin: 0; background: #050505; overflow: hidden; }
+        
+        /* Efeito de vinheta para focar o olhar e dar realismo */
+        .vignette {
+            fixed: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+            pointer-events: none;
+        }
+
+        #gameCanvas {
+            display: block;
+            filter: contrast(1.1) brightness(0.9); /* Ajuste de pós-processamento */
+        }
+    </style>
+</head>
+<body>
+    <div class="vignette"></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const player = { x: 100, y: 100, size: 30 };
+
+        function draw() {
+            // Fundo com leve gradiente para simular distância
+            const bgGradient = ctx.createRadialGradient(
+                canvas.width/2, canvas.height/2, 0, 
+                canvas.width/2, canvas.height/2, canvas.width
+            );
+            bgGradient.addColorStop(0, '#1a1a1a');
+            bgGradient.addColorStop(1, '#000000');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Simulação de Iluminação Dinâmica (Luz que segue o jogador)
+            let light = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, 300);
+            light.addColorStop(0, 'rgba(255, 255, 200, 0.15)');
+            light.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = light;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Objeto com sombra projetada
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "black";
+            ctx.fillStyle = "#444";
+            ctx.fillRect(player.x - 15, player.y - 15, player.size, player.size);
+            
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            player.x = e.clientX;
+            player.y = e.clientY;
+        });
+
+        draw();
+    </script>
+</body>
+</html>
