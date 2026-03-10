@@ -1,1 +1,167 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Zumbi Shooter JS</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
+        canvas { display: block; background: #222; }
+        #ui {
+            position: absolute; top: 10px; left: 10px;
+            color: white; font-size: 20px; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">Pontuação: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let score = 0;
+        let gameActive = true;
+
+        // Classes do Jogo
+        class Player {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.radius = 15;
+                this.color = '#0095DD';
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        class Projectile {
+            constructor(x, y, velocity) {
+                this.x = x;
+                this.y = y;
+                this.velocity = velocity;
+                this.radius = 5;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffff00';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+            }
+        }
+
+        class Enemy {
+            constructor(x, y, velocity) {
+                this.x = x;
+                this.y = y;
+                this.velocity = velocity;
+                this.radius = 20;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#2ecc71';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+            }
+        }
+
+        const player = new Player();
+        const projectiles = [];
+        const enemies = [];
+
+        // Spawn de Inimigos
+        function spawnEnemies() {
+            setInterval(() => {
+                const radius = 20;
+                let x, y;
+                if (Math.random() < 0.5) {
+                    x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+                    y = Math.random() * canvas.height;
+                } else {
+                    x = Math.random() * canvas.width;
+                    y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+                }
+
+                const angle = Math.atan2(player.y - y, player.x - x);
+                const velocity = { x: Math.cos(angle) * 2, y: Math.sin(angle) * 2 };
+                enemies.push(new Enemy(x, y, velocity));
+            }, 1000);
+        }
+
+        // Evento de Tiro
+        window.addEventListener('click', (event) => {
+            const angle = Math.atan2(event.clientY - player.y, event.clientX - player.x);
+            const velocity = { x: Math.cos(angle) * 6, y: Math.sin(angle) * 6 };
+            projectiles.push(new Projectile(player.x, player.y, velocity));
+        });
+
+        // Loop Principal
+        function animate() {
+            if (!gameActive) return;
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Efeito de rastro
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            player.draw();
+
+            projectiles.forEach((projectile, index) => {
+                projectile.update();
+                projectile.draw();
+                // Remover tiros fora da tela
+                if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width ||
+                    projectile.y + projectile.radius < 0 || projectile.y - projectile.radius > canvas.height) {
+                    projectiles.splice(index, 1);
+                }
+            });
+
+            enemies.forEach((enemy, index) => {
+                enemy.update();
+                enemy.draw();
+
+                // Colisão Zumbi vs Jogador (Game Over)
+                const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                if (dist - enemy.radius - player.radius < 1) {
+                    gameActive = false;
+                    alert("GAME OVER! Sua pontuação: " + score);
+                    location.reload();
+                }
+
+                // Colisão Tiro vs Zumbi
+                projectiles.forEach((projectile, pIndex) => {
+                    const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+                    if (dist - enemy.radius - projectile.radius < 1) {
+                        setTimeout(() => {
+                            enemies.splice(index, 1);
+                            projectiles.splice(pIndex, 1);
+                            score += 10;
+                            scoreElement.innerHTML = score;
+                        }, 0);
+                    }
+                });
+            });
+        }
+
+        spawnEnemies();
+        animate();
+    </script>
+</body>
+</html>
