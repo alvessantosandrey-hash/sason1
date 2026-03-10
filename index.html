@@ -331,3 +331,64 @@ draw();
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Level System</title>
+    <style>
+        body { margin: 0; background: #111; color: white; font-family: sans-serif; overflow: hidden; }
+        #ui { position: absolute; top: 10px; left: 10px; pointer-events: none; }
+        canvas { display: block; background: #000; }
+        .level-up { color: #ff0; font-weight: bold; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <div>Inimigos Abatidos: <span id="score">0</span></div>
+        <div id="levelDisplay">Fase: <span id="level">1</span></div>
+        <div id="msg" class="level-up"></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Configurações iniciais
+        let score = 0;
+        let level = 1;
+        let enemySpeed = 2; // Dificuldade inicial
+        let spawnRate = 1000; // Tempo entre inimigos em ms
+
+        function updateGameLogic() {
+            // REGRA: Ao matar 50 inimigos, muda para Fase 2
+            if (score >= 50 && level === 1) {
+                level = 2;
+                enemySpeed = 5;    // Dificulta: inimigos mais rápidos
+                spawnRate = 600;   // Dificulta: aparecem mais rápido
+                
+                document.getElementById('level').innerText = level;
+                document.getElementById('msg').innerText = "FASE 2: VELOCIDADE AUMENTADA!";
+                
+                // Feedback visual: muda a cor do fundo brevemente
+                canvas.style.backgroundColor = "#1a0000"; 
+            }
+        }
+
+        // Simulação de abate (Clique no canvas para simular morte de inimigo)
+        canvas.addEventListener('click', () => {
+            score++;
+            document.getElementById('score').innerText = score;
+            updateGameLogic();
+            
+            // Desenha um efeito visual simples
+            ctx.fillStyle = "white";
+            ctx.fillText("KILL!", Math.random() * canvas.width, Math.random() * canvas.height);
+        });
