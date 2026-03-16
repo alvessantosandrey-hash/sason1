@@ -392,3 +392,126 @@
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini God of War Clone</title>
+    <style>
+        body { margin: 0; background: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
+        canvas { border: 4px solid #444; background: #222; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .ui { position: absolute; top: 20px; left: 20px; }
+    </style>
+</head>
+<body>
+    <div class="ui">
+        <h1>GOD OF JS</h1>
+        <p>Use as <b>Setas</b> para mover e <b>Espaço</b> para atacar!</p>
+        <p>Inimigos derrotados: <span id="score">0</span></p>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+
+    canvas.width = 800;
+    canvas.height = 400;
+
+    let score = 0;
+
+    const player = {
+        x: 50, y: 300, w: 40, h: 60,
+        color: '#e74c3c', // Vermelho Kratos
+        speed: 5,
+        attacking: false,
+        attackRange: 60
+    };
+
+    const enemies = [];
+    function spawnEnemy() {
+        enemies.push({
+            x: canvas.width,
+            y: 320,
+            w: 30,
+            h: 40,
+            color: '#2ecc71',
+            speed: 2
+        });
+    }
+
+    const keys = {};
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => {
+        keys[e.code] = false;
+        if(e.code === 'Space') player.attacking = false;
+    });
+
+    function update() {
+        // Movimentação
+        if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+        if (keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+        
+        // Ataque
+        if (keys['Space']) player.attacking = true;
+
+        // Lógica dos Inimigos
+        enemies.forEach((enemy, index) => {
+            enemy.x -= enemy.speed;
+
+            // Colisão com ataque
+            if (player.attacking && 
+                player.x + player.w + player.attackRange > enemy.x &&
+                player.x < enemy.x + enemy.w) {
+                enemies.splice(index, 1);
+                score++;
+                scoreEl.innerText = score;
+            }
+
+            // Reiniciar se inimigo passar
+            if (enemy.x + enemy.w < 0) enemies.splice(index, 1);
+        });
+
+        if (Math.random() < 0.02) spawnEnemy();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Chão
+        ctx.fillStyle = '#333';
+        ctx.fillRect(0, 360, canvas.width, 40);
+
+        // Jogador
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+        
+        // Marca da tatuagem do Kratos
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(player.x + 10, player.y, 5, 30);
+
+        // Efeito de Ataque
+        if (player.attacking) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillRect(player.x + player.w, player.y + 20, player.attackRange, 10);
+        }
+
+        // Inimigos
+        enemies.forEach(enemy => {
+            ctx.fillStyle = enemy.color;
+            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+        });
+
+        requestAnimationFrame(() => {
+            update();
+            draw();
+        });
+    }
+
+    draw();
+</script>
+</body>
+</html>
