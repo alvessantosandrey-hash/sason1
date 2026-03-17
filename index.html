@@ -276,3 +276,30 @@ function enemyReaction() {
 }
 
 // Chame essa função dentro do seu setInterval ou loop de ataque do jogador
+
+
+            // Configurações de IA
+const aiState = {
+    isLeaning: false,
+    reactionChance: 0.4 // 40% de chance de tentar esquivar
+};
+
+function enemyTryDodge() {
+    if (aiState.isLeaning || isStunned) return;
+
+    if (Math.random() < aiState.reactionChance) {
+        aiState.isLeaning = true;
+        
+        // Decide aleatoriamente entre esquerda (Q) ou direita (E)
+        const direction = Math.random() > 0.5 ? 'leaning-left' : 'leaning-right';
+        
+        enemy.classList.add(direction);
+        console.log("IA Esquivou!");
+
+        // Remove a esquiva após 400ms (tempo para o jogador errar o golpe)
+        setTimeout(() => {
+            enemy.classList.remove('leaning-left', 'leaning-right');
+            aiState.isLeaning = false;
+        }, 400);
+    }
+}
