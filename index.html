@@ -240,3 +240,39 @@ aa<!DOCTYPE html>
     </script>
 </body>
 </html>
+// Configurações da IA
+const AI_CONFIG = {
+    reactionChance: 0.3, // 30% de chance de esquivar/bloquear ao ser atacado
+    dodgeDuration: 300   // Tempo que a esquiva dura em ms
+};
+
+function enemyReaction() {
+    if (isStunned) return;
+
+    const decision = Math.random();
+
+    // Se o jogador estiver atacando (isAttacking do player), a IA reage
+    if (isAttacking && decision < AI_CONFIG.reactionChance) {
+        const moveType = Math.random();
+
+        if (moveType < 0.4) {
+            // Esquiva para a Esquerda
+            enemy.classList.add('leaning-left');
+            setTimeout(() => enemy.classList.remove('leaning-left'), AI_CONFIG.dodgeDuration);
+        } else if (moveType < 0.8) {
+            // Esquiva para a Direita
+            enemy.classList.add('leaning-right');
+            setTimeout(() => enemy.classList.remove('leaning-right'), AI_CONFIG.dodgeDuration);
+        } else {
+            // Bloqueio do Inimigo
+            enemyIsBlocking = true;
+            enemy.classList.add('blocking');
+            setTimeout(() => {
+                enemyIsBlocking = false;
+                enemy.classList.remove('blocking');
+            }, 500);
+        }
+    }
+}
+
+// Chame essa função dentro do seu setInterval ou loop de ataque do jogador
