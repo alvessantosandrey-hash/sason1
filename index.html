@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Retro Boxing Challenge - Human Edition</title>
+    <title>Boxe Arcade - Movimentação Livre</title>
     <style>
         body {
             background-color: #222;
@@ -17,28 +17,28 @@
             overflow: hidden;
         }
 
-        /* Animação de respiração/balanço */
-        @keyframes idle {
-            from { transform: translateY(0); }
-            to { transform: translateY(-8px); }
-        }
-
         #game-container {
             position: relative;
             width: 600px;
-            height: 300px;
+            height: 400px;
             border: 5px solid #fff;
-            background: linear-gradient(to bottom, #444, #111);
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            padding-bottom: 20px;
+            background: radial-gradient(circle, #555, #111);
+            overflow: hidden;
+        }
+
+        @keyframes idle {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
         }
 
         .fighter {
+            position: absolute;
             width: 70px;
             height: 130px;
-            position: relative;
+            transition: transform 0.1s;
+        }
+
+        .visual-container {
             animation: idle 0.5s ease-in-out infinite alternate;
         }
 
@@ -47,7 +47,7 @@
             content: '';
             position: absolute;
             top: -45px;
-            left: 10px;
+            left: 12px;
             width: 45px;
             height: 45px;
             background-color: #ffdbac;
@@ -55,21 +55,19 @@
             border: 3px solid #000;
         }
 
-        /* Tronco/Camiseta */
+        /* Tronco */
         .body-visual {
             width: 100%;
             height: 100%;
             background-color: #f1c40f;
-            border-radius: 15px 15px 0 0;
+            border-radius: 15px 15px 5px 5px;
             border: 3px solid #000;
-            box-sizing: border-box;
         }
 
         #enemy .body-visual { background-color: #e74c3c; }
         #enemy::before { background-color: #8d5524; }
-        #enemy { transform: scaleX(-1); } /* Inverte o inimigo */
+        #enemy { transform: scaleX(-1); }
 
-        /* Luvas/Punhos */
         .fist {
             position: absolute;
             width: 35px;
@@ -78,15 +76,15 @@
             border-radius: 50%;
             top: 40px;
             left: 20px;
-            z-index: 10;
-            display: none; /* Só aparece no ataque */
+            display: none;
             border: 2px solid #000;
+            z-index: 10;
         }
 
-        /* Tipos de Golpes com Movimento */
-        .jab { display: block; transform: translateX(100px); }
-        .direto { display: block; transform: translateX(160px); width: 45px; }
-        .hook { display: block; transform: translate(80px, -40px); background-color: #8e44ad; }
+        /* Golpes */
+        .jab { display: block; transform: translateX(80px); }
+        .direto { display: block; transform: translateX(130px); width: 45px; }
+        .hook { display: block; transform: translate(60px, -40px); }
 
         .ui { margin-top: 20px; text-align: center; }
         .health-bar { width: 250px; height: 20px; background: #555; border: 2px solid #fff; }
@@ -94,19 +92,15 @@
         #player-hp { background: #2ecc71; }
         #enemy-hp { background: #e74c3c; }
 
-        /* Efeito de Tremer a tela */
         .shake { animation: shake-anim 0.2s; }
         @keyframes shake-anim {
-            0% { transform: translate(0,0); }
+            0%, 100% { transform: translate(0,0); }
             25% { transform: translate(5px, 5px); }
             50% { transform: translate(-5px, -5px); }
-            100% { transform: translate(0,0); }
         }
     </style>
 </head>
 <body>
-
-    <h1>BOXE ARCADE</h1>
 
     <div style="display: flex; gap: 50px; margin-bottom: 10px;">
         <div>Player: <div class="health-bar"><div id="player-hp" class="health-fill"></div></div></div>
@@ -114,221 +108,113 @@
     </div>
 
     <div id="game-container">
-        <div id="player" class="fighter">
-            <div class="body-visual"></div>
-            <div id="player-fist" class="fist"></div>
+        <div id="player" class="fighter" style="left: 100px; top: 200px;">
+            <div class="visual-container">
+                <div class="body-visual"></div>
+                <div id="player-fist" class="fist"></div>
+            </div>
         </div>
-        <div id="enemy" class="fighter"><!DOCTYPE html>
-
-        /* Efeito de Tremer a tela */
-        .shake { animation: shake-anim 0.2s; }
-        @keyframes shake-anim {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(5px, 5px); }
-            50% { transform: translate(-5px, -5px); }
-            100% { transform: translate(0,0); }
-        }
-    </style>
-</head>
-<body>
-
-    <h1>BOXE ARCADE</h1>
-
-    <div style="display: flex; gap: 50px; margin-bottom: 10px;">
-        <div>Player: <div class="health-bar"><div id="player-hp" class="health-fill"></div></div></div>
-        <div>Oponente: <div class="health-bar"><div id="enemy-hp" class="health-fill"></div></div></div>
-    </div>
-
-    <div id="game-container">
-        <div id="player" class="fighter">
-            <div class="body-visual"></div>
-            <div id="player-fist" class="fist"></div>
-        </div>
-        <div id="enemy" class="fighter">
-            <div class="body-visual"></div>
-            <div id="enemy-fist" class="fist"></div>
+        <div id="enemy" class="fighter" style="left: 400px; top: 200px;">
+            <div class="visual-container">
+                <div class="body-visual"></div>
+                <div id="enemy-fist" class="fist"></div>
+            </div>
         </div>
     </div>
 
     <div class="ui">
-        <p id="msg">A, S, D PARA ATACAR!</p>
+        <p id="msg">MOVA COM <b>WASD</b> | ATAQUE COM <b>J, K, L</b></p>
     </div>
 
     <script>
+        const player = document.getElementById('player');
+        const enemy = document.getElementById('enemy');
         const playerFist = document.getElementById('player-fist');
         const enemyFist = document.getElementById('enemy-fist');
         const container = document.getElementById('game-container');
         const msg = document.getElementById('msg');
-        
-        let enemyHealth = 100;
+
+        let pPos = { x: 100, y: 200 };
+        let ePos = { x: 400, y: 200 };
         let playerHealth = 100;
+        let enemyHealth = 100;
         let isAttacking = false;
 
+        // Sistema de Movimentação WASD
         document.addEventListener('keydown', (e) => {
-            if (isAttacking || enemyHealth <= 0 || playerHealth <= 0) return;
+            if (playerHealth <= 0) return;
             const key = e.key.toLowerCase();
-            if (key === 'a') attack('jab', 5, 150);
-            if (key === 's') attack('direto', 12, 350);
-            if (key === 'd') attack('hook', 20, 500);
-        });
+            const step = 15;
 
-        function attack(type, damage, speed) {
-            isAttacking = true;
-            playerFist.className = 'fist ' + type;
-            
-            setTimeout(() => {
-                enemyHealth -= damage;<!DOCTYPE html>
+            // Movimento
+            if (key === 'w' && pPos.y > 50) pPos.y -= step;
+            if (key === 's' && pPos.y < 270) pPos.y += step;
+            if (key === 'a' && pPos.x > 0) pPos.x -= step;
+            if (key === 'd' && pPos.x < 530) pPos.x += step;
 
-        /* Efeito de Tremer a tela */
-        .shake { animation: shake-anim 0.2s; }
-        @keyframes shake-anim {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(5px, 5px); }
-            50% { transform: translate(-5px, -5px); }
-            100% { transform: translate(0,0); }
-        }
-    </style>
-</head>
-<body>
-
-    <h1>BOXE ARCADE</h1>
-
-    <div style="display: flex; gap: 50px; margin-bottom: 10px;">
-        <div>Player: <div class="health-bar"><div id="player-hp" class="health-fill"></div></div></div>
-        <div>Oponente: <div class="health-bar"><div id="enemy-hp" class="health-fill"></div></div></div>
-    </div>
-
-    <div id="game-container">
-        <div id="player" class="fighter">
-            <div class="body-visual"></div>
-            <div id="player-fist" class="fist"></div>
-        </div>
-        <div id="enemy" class="fighter">
-            <div class="body-visual"></div>
-            <div id="enemy-fist" class="fist"></div>
-        </div>
-    </div>
-
-    <div class="ui">
-        <p id="msg">A, S, D PARA ATACAR!</p>
-    </div>
-
-    <script>
-        const playerFist = document.getElementById('player-fist');
-        const enemyFist = document.getElementById('enemy-fist');
-        const container = document.getElementById('game-container');
-        const msg = document.getElementById('msg');
-        
-        let enemyHealth = 100;
-        let playerHealth = 100;
-        let isAttacking = false;
-
-        document.addEventListener('keydown', (e) => {
-            if (isAttacking || enemyHealth <= 0 || playerHealth <= 0) return;
-            const key = e.key.toLowerCase();
-            if (key === 'a') attack('jab', 5, 150);
-            if (key === 's') attack('direto', 12, 350);
-            if (key === 'd') attack('hook', 20, 500);
-        });
-
-        function attack(type, damage, speed) {
-            isAttacking = true;
-            playerFist.className = 'fist ' + type;
-            
-            setTimeout(() => {
-                enemyHealth -= damage;
-                updateBars();
-                msg.innerText = `BOOM! ${type.toUpperCase()}`;
-            }, speed / 2);
-
-            setTimeout(() => {
-                playerFist.className = 'fist';
-                isAttacking = false;
-                if(enemyHealth > 0) enemyCounter();
-            }, speed);
-        }
-
-        function enemyCounter() {
-            if (Math.random() > 0.6) { 
-                setTimeout(() => {
-                    enemyFist.className = 'fist jab';
-                    playerHealth -= 7;
-                    updateBars();
-                    setTimeout(() => enemyFist.className = 'fist', 150);
-</html>
-                updateBars();
-                msg.innerText = `BOOM! ${type.toUpperCase()}`;
-            }, speed / 2);
-
-            setTimeout(() => {
-                playerFist.className = 'fist';
-                isAttacking = false;
-                if(enemyHealth > 0) enemyCounter();
-            }, speed);
-        }
-
-        function enemyCounter() {
-            if (Math.random() > 0.6) { 
-                setTimeout(() => {
-                    enemyFist.className = 'fist jab';
-                    playerHealth -= 7;
-                    updateBars();
-                    setTimeout(() => enemyFist.className = 'fist', 150);
-</html>
-            <div class="body-visual"></div>
-            <div id="enemy-fist" class="fist"></div>
-        </div>
-    </div>
-
-    <div class="ui">
-        <p id="msg">A, S, D PARA ATACAR!</p>
-    </div>
-
-    <script>
-        const playerFist = document.getElementById('player-fist');
-        const enemyFist = document.getElementById('enemy-fist');
-        const container = document.getElementById('game-container');
-        const msg = document.getElementById('msg');
-        
-        let enemyHealth = 100;
-        let playerHealth = 100;
-        let isAttacking = false;
-
-        document.addEventListener('keydown', (e) => {
-            if (isAttacking || enemyHealth <= 0 || playerHealth <= 0) return;
-            const key = e.key.toLowerCase();
-            if (key === 'a') attack('jab', 5, 150);
-            if (key === 's') attack('direto', 12, 350);
-            if (key === 'd') attack('hook', 20, 500);
-        });
-
-        function attack(type, damage, speed) {
-            isAttacking = true;
-            playerFist.className = 'fist ' + type;
-            
-            setTimeout(() => {
-                enemyHealth -= damage;
-                updateBars();
-                msg.innerText = `BOOM! ${type.toUpperCase()}`;
-            }, speed / 2);
-
-            setTimeout(() => {
-                playerFist.className = 'fist';
-                isAttacking = false;
-                if(enemyHealth > 0) enemyCounter();
-            }, speed);
-        }
-
-        function enemyCounter() {
-            if (Math.random() > 0.6) { 
-                setTimeout(() => {
-                    enemyFist.className = 'fist jab';
-                    playerHealth -= 7;
-                    updateBars();
-                    setTimeout(() => enemyFist.className = 'fist', 150);
-                }, 300);
+            // Ataques
+            if (!isAttacking) {
+                if (key === 'j') attack('jab', 5, 150);
+                if (key === 'k') attack('direto', 12, 350);
+                if (key === 'l') attack('hook', 20, 500);
             }
+
+            updatePositions();
+        });
+
+        function updatePositions() {
+            player.style.left = pPos.x + 'px';
+            player.style.top = pPos.y + 'px';
+            enemy.style.left = ePos.x + 'px';
+            enemy.style.top = ePos.y + 'px';
         }
+
+        function attack(type, damage, speed) {
+            isAttacking = true;
+            playerFist.className = 'fist ' + type;
+
+            // Verifica colisão (distância entre lutadores)
+            const dist = Math.abs(pPos.x - ePos.x);
+            const yDist = Math.abs(pPos.y - ePos.y);
+
+            setTimeout(() => {
+                if (dist < 150 && yDist < 50) { // Só acerta se estiver perto
+                    enemyHealth -= damage;
+                    updateBars();
+                    msg.innerText = "ACERTOU!";
+                } else {
+                    msg.innerText = "ERROU O GOLPE!";
+                }
+            }, speed / 2);
+
+            setTimeout(() => {
+                playerFist.className = 'fist';
+                isAttacking = false;
+                if(enemyHealth > 0) enemyIA();
+            }, speed);
+        }
+
+        function enemyIA() {
+            // IA simples: persegue o jogador lentamente
+            if (ePos.x > pPos.x + 80) ePos.x -= 5;
+            if (ePos.x < pPos.x + 80) ePos.x += 5;
+            if (ePos.y > pPos.y) ePos.y -= 5;
+            if (ePos.y < pPos.y) ePos.y += 5;
+
+            // Chance de contra-ataque se estiver perto
+            if (Math.random() > 0.95 && Math.abs(ePos.x - pPos.x) < 100) {
+                enemyFist.className = 'fist jab';
+                playerHealth -= 5;
+                updateBars();
+                setTimeout(() => enemyFist.className = 'fist', 200);
+            }
+            updatePositions();
+        }
+
+        // Loop da IA para movimento fluido
+        setInterval(() => {
+            if (enemyHealth > 0 && playerHealth > 0) enemyIA();
+        }, 100);
 
         function updateBars() {
             container.classList.add('shake');
@@ -336,14 +222,9 @@
 
             document.getElementById('enemy-hp').style.width = Math.max(0, enemyHealth) + "%";
             document.getElementById('player-hp').style.width = Math.max(0, playerHealth) + "%";
-            
-            if (enemyHealth <= 0) {
-                msg.innerText = "K.O. - VOCÊ VENCEU!";
-                document.getElementById('enemy').style.opacity = '0.3';
-            } else if (playerHealth <= 0) {
-                msg.innerText = "DERROTADO!";
-                document.getElementById('player').style.opacity = '0.3';
-            }
+
+            if (enemyHealth <= 0) msg.innerText = "VITÓRIA!";
+            if (playerHealth <= 0) msg.innerText = "DERROTA!";
         }
     </script>
 </body>
