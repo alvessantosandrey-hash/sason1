@@ -303,3 +303,257 @@ function enemyTryDodge() {
         }, 400);
     }
 }
+
+        <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Retro Boxing Pro</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Container do Jogo */
+        #game-container {
+            position: relative;
+            width: 700px;
+            height: 450px;
+            border: 8px solid #333;
+            background: radial-gradient(circle, #444, #000);
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        /* Personagens */
+        .fighter {
+            position: absolute;
+            width: 70px;
+            height: 120px;
+            transition: left 0.1s, top 0.1s, transform 0.2s;
+        }
+
+        .visual-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            animation: bounce 0.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        .fighter::before {
+            content: '';
+            position: absolute;
+            top: -45px;
+            left: 12px;
+            width: 45px;
+            height: 45px;
+            background-color: #ffdbac;
+            border-radius: 50%;
+            border: 3px solid #000;
+        }
+
+        .body-visual {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px 15px 5px 5px;
+            border: 3px solid #000;
+            box-sizing: border-box;
+        }
+
+        #player .body-visual { background-color: #3498db; }
+        #enemy .body-visual { background-color: #e74c3c; }
+        #enemy::before { background-color: #8d5524; }
+
+        /* Estados de Esquiva da IA */
+        .leaning-left { transform: rotate(-20deg) translateX(-20px); }
+        .leaning-right { transform: rotate(20deg) translateX(20px); }
+
+        /* Luvas */
+        .fist {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background-color: #cc0000;
+            border-radius: 50%;
+            top: 30px;
+            left: 20px;
+            display: none;
+            border: 2px solid #000;
+            z-index: 5;
+        }
+
+        .jab { display: block; transform: translateX(90px); }
+        .direto { display: block; transform: translateX(140px); width: 45px; }
+        .hook { display: block; transform: translate(70px, -40px); }
+
+        /* HUD (Vida) */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            width: 700px;
+            margin-bottom: 15px;
+        }
+
+        .health-bar { width: 300px; height: 25px; background: #333; border: 3px solid #fff; border-radius: 5px; }
+        .health-fill { height: 100%; width: 100%; transition: width 0.2s ease-out; }
+        #player-hp { background: #2ecc71; }
+        #enemy-hp { background: #e74c3c; }
+
+        /* Mensagens de Feedback */
+        #msg { height: 30px; font-size: 1.2rem; font-weight: bold; margin-top: 15px; color: #f1c40f; }
+        
+        .shake { animation: shake-anim 0.2s; }
+        @keyframes shake-anim {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(5px, 5px); }
+            75% { transform: translate(-5px, -5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="health-bar"><div id="player-hp" class="health-fill"></div></div>
+        <div class="health-bar"><div id="enemy-hp" class="health-fill"></div></div>
+    </div>
+
+    <div id="game-container">
+        <div id="player" class="fighter" style="left: 100px; top: 200px;">
+            <div class="visual-wrapper">
+                <div class="body-visual"></div>
+                <div id="player-fist" class="fist"></div>
+            </div>
+        </div>
+
+        <div id="enemy" class="fighter" style="left: 450px; top: 200px;">
+            <div class="visual-wrapper">
+                <div class="body-visual"></div>
+                <div id="enemy-fist" class="fist"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="msg"></div>
+
+    <script>
+        const player = document.getElementById('player');
+        const enemy = document.getElementById('enemy');
+        const playerFist = document.getElementById('player-fist');
+        const enemyFist = document.getElementById('enemy-fist');
+        const container = document.getElementById('game-container');
+        const msg = document.getElementById('msg');
+
+        let pPos = { x: 100, y: 200 };
+        let ePos = { x: 450, y: 200 };
+        let playerHealth = 100;
+        let enemyHealth = 100;
+        let isAttacking = false;
+        let aiIsLeaning = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (playerHealth <= 0 || enemyHealth <= 0) return;
+            const key = e.key.toLowerCase();
+            
+            if (key === 'w' && pPos.y > 60) pPos.y -= 20;
+            if (key === 's' && pPos.y < 300) pPos.y += 20;
+            if (key === 'a' && pPos.x > 0) pPos.x -= 20;
+            if (key === 'd' && pPos.x < 630) pPos.x += 20;
+
+            if (!isAttacking) {
+                if (key === 'j') attack('jab', 5, 150);
+                if (key === 'k') attack('direto', 12, 300);
+                if (key === 'l') attack('hook', 20, 500);
+            }
+            updatePositions();
+        });
+
+        function attack(type, damage, speed) {
+            isAttacking = true;
+            playerFist.className = 'fist ' + type;
+
+            // IA tenta esquivar no momento do golpe
+            enemyTryDodge();
+
+            setTimeout(() => {
+                const dx = Math.abs(pPos.x - ePos.x);
+                const dy = Math.abs(pPos.y - ePos.y);
+
+                if (dx < 140 && dy < 60 && !aiIsLeaning) {
+                    enemyHealth -= damage;
+                    updateBars();
+                    msg.innerText = "HIT!";
+                } else if (aiIsLeaning) {
+                    msg.innerText = "ESQUIVOU!";
+                } else {
+                    msg.innerText = "MISS!";
+                }
+            }, speed / 2);
+
+            setTimeout(() => {
+                playerFist.className = 'fist';
+                isAttacking = false;
+            }, speed);
+        }
+
+        function enemyTryDodge() {
+            if (aiIsLeaning) return;
+            if (Math.random() < 0.5) { // 50% chance de esquiva
+                aiIsLeaning = true;
+                const dir = Math.random() > 0.5 ? 'leaning-left' : 'leaning-right';
+                enemy.classList.add(dir);
+                setTimeout(() => {
+                    enemy.classList.remove('leaning-left', 'leaning-right');
+                    aiIsLeaning = false;
+                }, 400);
+            }
+        }
+
+        function updatePositions() {
+            player.style.left = pPos.x + 'px';
+            player.style.top = pPos.y + 'px';
+            enemy.style.left = ePos.x + 'px';
+            enemy.style.top = ePos.y + 'px';
+        }
+
+        setInterval(() => {
+            if (enemyHealth <= 0 || playerHealth <= 0) return;
+            // IA segue jogador
+            if (ePos.x > pPos.x + 100) ePos.x -= 2;
+            if (ePos.x < pPos.x + 100) ePos.x += 2;
+            if (ePos.y > pPos.y) ePos.y -= 1;
+            if (ePos.y < pPos.y) ePos.y += 1;
+
+            if (Math.random() > 0.98 && Math.abs(ePos.x - pPos.x) < 130) {
+                enemyFist.className = 'fist jab';
+                playerHealth -= 3;
+                updateBars();
+                setTimeout(() => enemyFist.className = 'fist', 200);
+            }
+            updatePositions();
+        }, 50);
+
+        function updateBars() {
+            container.classList.add('shake');
+            setTimeout(() => container.classList.remove('shake'), 200);
+            document.getElementById('enemy-hp').style.width = Math.max(0, enemyHealth) + "%";
+            document.getElementById('player-hp').style.width = Math.max(0, playerHealth) + "%";
+            if (enemyHealth <= 0) msg.innerText = "VICTORY!";
+            if (playerHealth <= 0) msg.innerText = "GAME OVER";
+        }
+    </script>
+</body>
+</html>
