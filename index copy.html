@@ -254,3 +254,37 @@ aa<!DOCTYPE html>
 
 .leg.left { left: 10px; }
 .leg.right { right: 10px; }
+
+
+/* Configuração das Pernas */
+.leg {
+    position: absolute;
+    bottom: -25px; /* Projeção para fora do corpo */
+    width: 14px;
+    height: 30px;
+    background-color: #ffdbac; /* Cor padrão (pele player) */
+    border: 3px solid #000;
+    border-top: none; /* Remove a linha que divide a perna do tronco */
+    z-index: 0;
+}
+
+.leg.left { left: 8px; }
+.leg.right { right: 8px; }
+
+/* Ajuste de cor para as pernas do inimigo */
+#enemy .leg {
+    background-color: #8d5524; /* Tom de pele escuro do oponente */
+}
+
+/* Sapatos (Opcional, mas dá um toque legal) */
+.leg::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: -2px;
+    width: 20px;
+    height: 10px;
+    background-color: #111;
+    border: 2px solid #000;
+    border-radius: 5px 5px 2px 2px;
+}
