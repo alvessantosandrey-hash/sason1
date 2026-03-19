@@ -502,3 +502,108 @@
 
             if (key === 'w' && pPos.y > window.innerHeight * 0.4) pPos.y -= step;
             if (key === 's'
+
+
+                <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Retro Boxing - Turbo Night</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Novo Cenário: Ringue de Boxe */
+        #game-container {
+            position: relative;
+            width: 700px;
+            height: 450px;
+            border: 8px solid #d35400;
+            background: 
+                linear-gradient(0deg, #555 0%, #222 50%, #000 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px);
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(211, 84, 0, 0.3);
+        }
+
+        /* Cordas do Ringue */
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-top: 15px repeating-linear-gradient(red 0, red 5px, blue 5px, blue 10px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Efeito de Flash da Plateia */
+        @keyframes flash {
+            0%, 95%, 100% { opacity: 0; }
+            96%, 98% { opacity: 0.6; }
+        }
+        .crowd-flash {
+            position: absolute;
+            width: 100%;
+            height: 40%;
+            background: white;
+            top: 0;
+            animation: flash 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        @keyframes walk {
+            0% { transform: rotate(-30deg); }
+            100% { transform: rotate(30deg); }
+        }
+
+        .fighter {
+            position: absolute;
+            width: 70px;
+            height: 120px;
+            transition: left 0.05s linear, top 0.05s linear; /* Movimento mais suave e rápido */
+            z-index: 10;
+        }
+
+        .visual-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            animation: bounce 0.2s ease-in-out infinite alternate; /* Bounce mais frenético */
+        }
+
+        /* Cabeça */
+        .fighter::before {
+            content: '';
+            position: absolute;
+            top: -45px;
+            left: 12px;
+            width: 45px;
+            height: 45px;
+            background-color: #ffdbac;
+            border-radius: 50%;
+            border: 3px solid #000;
+            z-index: 2;
+        }
+
+        .body-visual {
+            width: 100%;
+            height: 80%;
+            background-color: #f1c40f;
+            border-radius: 15px 15px 5px 5px;
+            border: 3px solid #000;
+            position: relative;
