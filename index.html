@@ -607,3 +607,175 @@
             border-radius: 15px 15px 5px 5px;
             border: 3px solid #000;
             position: relative;
+
+
+        <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Boxing - Turbo Arena</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Arena do Ringue */
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 450px;
+            background: #34495e;
+            border: 10px solid #c0392b;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            background-image: 
+                linear-gradient(0deg, rgba(0,0,0,0.3) 0%, transparent 50%),
+                repeating-linear-gradient(0deg, transparent 0, transparent 40px, rgba(255,255,255,0.05) 40px, rgba(255,255,255,0.05) 41px),
+                repeating-linear-gradient(90deg, transparent 0, transparent 40px, rgba(255,255,255,0.05) 40px, rgba(255,255,255,0.05) 41px);
+        }
+
+        /* Efeito de Flash da Plateia */
+        .flash {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Interface (HUD) */
+        .hud {
+            display: flex;
+            gap: 50px;
+            margin-bottom: 15px;
+            width: 800px;
+            justify-content: space-between;
+        }
+
+        .health-bar { width: 300px; height: 25px; background: #444; border: 3px solid #fff; position: relative; }
+        .health-fill { height: 100%; width: 100%; transition: width 0.2s ease-out; }
+        #player-hp { background: #2ecc71; }
+        #enemy-hp { background: #e74c3c; float: right; }
+
+        /* Bonecos */
+        .fighter {
+            position: absolute;
+            width: 70px;
+            height: 120px;
+            transition: left 0.08s linear, top 0.08s linear;
+        }
+
+        .visual-wrapper {
+            position: relative;
+            width: 100%; height: 100%;
+            animation: bounce 0.3s ease-in-out infinite alternate;
+        }
+
+        /* Cabeça e Corpo */
+        .fighter::before {
+            content: ''; position: absolute; top: -45px; left: 12px;
+            width: 45px; height: 45px; background: #ffdbac;
+            border-radius: 50%; border: 3px solid #000; z-index: 2;
+        }
+
+        .body-visual {
+            width: 100%; height: 85px; background: #f1c40f;
+            border-radius: 15px 15px 5px 5px; border: 3px solid #000;
+        }
+
+        /* Pernas */
+        .legs { position: absolute; bottom: -10px; width: 100%; display: flex; justify-content: space-around; }
+        .leg { 
+            width: 12px; height: 30px; background: #222; border: 2px solid #000; 
+            transform-origin: top center; animation: walk 0.2s infinite alternate;
+        }
+        .leg.r { animation-delay: 0.1s; }
+
+        /* Inimigo */
+        #enemy .body-visual { background: #e74c3c; }
+        #enemy { transform: scaleX(-1); }
+
+        /* Luvas/Ataque */
+        .fist {
+            position: absolute; width: 35px; height: 35px; background: #333;
+            border-radius: 50%; top: 30px; left: 20px; display: none;
+            border: 3px solid #000; z-index: 5;
+        }
+
+        .jab { display: block; transform: translateX(90px); }
+        .direto { display: block; transform: translateX(130px); width: 45px; }
+        .hook { display: block; transform: translate(60px, -40px); }
+
+        /* Animações */
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+        @keyframes walk { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
+        .shake { animation: shake-anim 0.2s; }
+        @keyframes shake-anim { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(5px, 5px); } }
+
+        .ui-text { margin-top: 20px; font-size: 1.2rem; text-shadow: 2px 2px #000; }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div>PLAYER <div class="health-bar"><div id="player-hp" class="health-fill"></div></div></div>
+        <div style="text-align: right;">OPONENTE <div class="health-bar"><div id="enemy-hp" class="health-fill"></div></div></div>
+    </div>
+
+    <div id="game-container">
+        <div id="flash-effect" class="flash"></div>
+        
+        <div id="player" class="fighter" style="left: 150px; top: 200px;">
+            <div class="visual-wrapper">
+                <div class="body-visual"></div>
+                <div id="player-fist" class="fist"></div>
+                <div class="legs"><div class="leg"></div><div class="leg r"></div></div>
+            </div>
+        </div>
+
+        <div id="enemy" class="fighter" style="left: 550px; top: 200px;">
+            <div class="visual-wrapper">
+                <div class="body-visual"></div>
+                <div id="enemy-fist" class="fist"></div>
+                <div class="legs"><div class="leg"></div><div class="leg r"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-text">
+        <span id="msg"><b>WASD</b>: Mover | <b>J, K, L</b>: Atacar</span>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const enemy = document.getElementById('enemy');
+        const playerFist = document.getElementById('player-fist');
+        const enemyFist = document.getElementById('enemy-fist');
+        const msg = document.getElementById('msg');
+        const flash = document.getElementById('flash-effect');
+
+        let pPos = { x: 150, y: 200 }, ePos = { x: 550, y: 200 };
+        let pHP = 100, eHP = 100, isAttacking = false;
+
+        function update() {
+            player.style.left = pPos.x + 'px';
+            player.style.top = pPos.y + 'px';
+            player.style.zIndex = Math.floor(pPos.y);
+            enemy.style.left = ePos.x + 'px';
+            enemy.style.top = ePos.y + 'px';
+            enemy.style.zIndex = Math.floor(ePos.y);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (pHP <= 0 || eHP <=
