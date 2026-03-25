@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Caça - Floresta</title>
+    <title>Monster Hunt - Floresta Sombria</title>
     <style>
         body {
             margin: 0;
@@ -13,40 +13,59 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #222;
-            color: white;
-            font-family: 'Arial', sans-serif;
+            background-color: #0f0f0f; /* Mais escuro para o tema de monstros */
+            color: #00ff41; /* Verde neon estilo hacker/monstro */
+            font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
+        }
+
+        #ui {
+            margin-bottom: 15px;
+            font-size: 28px;
+            display: flex;
+            gap: 30px;
+            text-shadow: 2px 2px 5px black;
         }
 
         #game-container {
             position: relative;
             width: 800px;
             height: 500px;
-            background: url('https://images.unsplash.com/photo-1448375232540-44af20ef2111?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;
-            border: 4px solid #444;
+            /* Fundo de floresta noturna */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1502082553048-f009c37129b9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;
+            border: 5px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             cursor: crosshair;
             overflow: hidden;
+            border-radius: 8px;
         }
 
         .target {
             position: absolute;
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
-            border-radius: 50%;
-            transition: transform 0.1s;
-        }
-
-        .target:active {
-            transform: scale(0.8);
-        }
-
-        #ui {
-            margin-bottom: 10px;
-            font-size: 24px;
+            width: 80px;
+            height: 80px;
             display: flex;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            cursor: pointer;
+            user-select: none;
+            /* Animação de surgimento */
+            animation: appear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 10px rgba(255,0,0,0.5));
+        }
+
+        @keyframes appear {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .target.hit {
+            transform: scale(1.5);
+            opacity: 0;
+            transition: 0.2s;
+            filter: brightness(2) saturate(2);
         }
 
         #game-over {
@@ -55,35 +74,44 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 15px;
+            border: 2px solid #ff4444;
+            z-index: 10;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 12px 25px;
+            font-size: 20px;
+            font-weight: bold;
             cursor: pointer;
-            background: #27ae60;
+            background: #ff4444;
             color: white;
             border: none;
             border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #cc0000;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 
     <div id="ui">
-        <div>Pontos: <span id="score">0</span></div>
-        <div>Tempo: <span id="timer">30</span>s</div>
+        <div>Monstros Abatidos: <span id="score">0</span></div>
+        <div>Tempo Restante: <span id="timer">30</span>s</div>
     </div>
 
-    <div id="game-container" id="game-board">
+    <div id="game-container">
         <div id="game-over">
-            <h2>Fim de Jogo!</h2>
-            <p>Você marcou <span id="final-score">0</span> pontos.</p>
-            <button onclick="startGame()">Jogar Novamente</button>
+            <h2 style="color: #ff4444;">MISSÃO ENCERRADA</h2>
+            <p>Você eliminou <span id="final-score">0</span> monstros!</p>
+            <button onclick="startGame()">CAÇAR NOVAMENTE</button>
         </div>
     </div>
 
@@ -94,6 +122,8 @@
         const gameOverScreen = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
 
+        const monsters = ['👾', '👹', '👻', '👽', '🧛', '🧟'];
+        
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
@@ -101,7 +131,6 @@
         let countdownInterval;
 
         function startGame() {
-            // Resetar variáveis
             score = 0;
             timeLeft = 30;
             gameActive = true;
@@ -109,54 +138,54 @@
             timerElement.innerText = timeLeft;
             gameOverScreen.style.display = 'none';
 
-            // Limpar alvos antigos
-            const oldTargets = document.querySelectorAll('.target');
-            oldTargets.forEach(t => t.remove());
+            document.querySelectorAll('.target').forEach(t => t.remove());
 
-            // Iniciar loops
-            spawnInterval = setInterval(createTarget, 800);
+            // Loop de criação de monstros (diminuído para 700ms para ser mais difícil)
+            spawnInterval = setInterval(createMonster, 700);
             countdownInterval = setInterval(updateTimer, 1000);
         }
 
-        function createTarget() {
+        function createMonster() {
             if (!gameActive) return;
 
-            const target = document.createElement('div');
-            target.classList.add('target');
+            const monster = document.createElement('div');
+            monster.classList.add('target');
+            
+            // Escolhe um monstro aleatório da lista
+            monster.innerText = monsters[Math.floor(Math.random() * monsters.length)];
 
-            // Posição aleatória dentro do container
-            const x = Math.random() * (container.offsetWidth - 70);
-            const y = Math.random() * (container.offsetHeight - 70);
+            const x = Math.random() * (container.offsetWidth - 90);
+            const y = Math.random() * (container.offsetHeight - 90);
 
-            target.style.left = `${x}px`;
-            target.style.top = `${y}px`;
+            monster.style.left = `${x}px`;
+            monster.style.top = `${y}px`;
 
-            // Evento de clique (Acerto)
-            target.addEventListener('mousedown', () => {
-                if (gameActive) {
-                    score += 10;
+            monster.addEventListener('mousedown', () => {
+                if (gameActive && !monster.classList.contains('hit')) {
+                    score += 1;
                     scoreElement.innerText = score;
-                    target.remove();
+                    monster.classList.add('hit');
+                    
+                    // Pequeno atraso para mostrar o efeito de "hit" antes de remover
+                    setTimeout(() => monster.remove(), 200);
                 }
             });
 
-            container.appendChild(target);
+            container.appendChild(monster);
 
-            // O alvo some sozinho após 1.5 segundos se não for clicado
+            // Monstros desaparecem mais rápido conforme o jogo avança
+            let vanishTime = 1200; 
             setTimeout(() => {
-                if (target.parentNode) {
-                    target.remove();
+                if (monster.parentNode) {
+                    monster.remove();
                 }
-            }, 1500);
+            }, vanishTime);
         }
 
         function updateTimer() {
             timeLeft--;
             timerElement.innerText = timeLeft;
-
-            if (timeLeft <= 0) {
-                endGame();
-            }
+            if (timeLeft <= 0) endGame();
         }
 
         function endGame() {
@@ -167,7 +196,6 @@
             gameOverScreen.style.display = 'block';
         }
 
-        // Iniciar ao carregar
         startGame();
     </script>
 </body>
