@@ -1,30 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Perfil do Herói</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Caça - Floresta</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background: url('https://images.unsplash.com/photo-1448375232540-44af20ef2111?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;
+            border: 4px solid #444;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        .target {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, red 20%, white 20%, white 40%, red 40%, red 60%, white 60%, white 80%, red 80%);
+            border-radius: 50%;
+            transition: transform 0.1s;
+        }
+
+        .target:active {
+            transform: scale(0.8);
+        }
+
+        #ui {
+            margin-bottom: 10px;
+            font-size: 24px;
+            display: flex;
+            gap: 20px;
+        }
+
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
-    <header
-        <h1>Capitão Código</h1>
-    </header>
+    <div id="ui">
+        <div>Pontos: <span id="score">0</span></div>
+        <div>Tempo: <span id="timer">30</span>s</div>
+    </div>
 
-    <main>
-        <section>
-            <h2>Poderes Especiais</h2>
-            <ul>
-                <li>Digitação na velocidade da luz<li>
-                <li>Visão de Raio-X para bugs</li>
-                <li>Imunidade a café frio</li>
-            </ul>
-        </section>
+    <div id="game-container" id="game-board">
+        <div id="game-over">
+            <h2>Fim de Jogo!</h2>
+            <p>Você marcou <span id="final-score">0</span> pontos.</p>
+            <button onclick="startGame()">Jogar Novamente</button>
+        </div>
+    </div>
 
-        <section>
-            <p>Este herói protege a internet contra o caos do código mal escrito.<strong></p>
-        </section>
+    <script>
+        const container = document.getElementById('game-container');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
 
-        <img src="heroi.jpg" alt="Foto do Herói"
-    </main>
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let spawnInterval;
+        let countdownInterval;
 
+        function startGame() {
+            // Resetar variáveis
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            scoreElement.innerText = score;
+            timerElement.innerText = timeLeft;
+            gameOverScreen.style.display = 'none';
+
+            // Limpar alvos antigos
+            const oldTargets = document.querySelectorAll('.target');
+            oldTargets.forEach(t => t.remove());
+
+            // Iniciar loops
+            spawnInterval = setInterval(createTarget, 800);
+            countdownInterval = setInterval(updateTimer, 1000);
+        }
+
+        function createTarget() {
+            if (!gameActive) return;
+
+            const target = document.createElement('div');
+            target.classList.add('target');
+
+            // Posição aleatória dentro do container
+            const x = Math.random() * (container.offsetWidth - 70);
+            const y = Math.random() * (container.offsetHeight - 70);
+
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+
+            // Evento de clique (Acerto)
+            target.addEventListener('mousedown', () => {
+                if (gameActive) {
+                    score += 10;
+                    scoreElement.innerText = score;
+                    target.remove();
+                }
+            });
+
+            container.appendChild(target);
+
+            // O alvo some sozinho após 1.5 segundos se não for clicado
+            setTimeout(() => {
+                if (target.parentNode) {
+                    target.remove();
+                }
+            }, 1500);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerElement.innerText = timeLeft;
+
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(spawnInterval);
+            clearInterval(countdownInterval);
+            finalScoreElement.innerText = score;
+            gameOverScreen.style.display = 'block';
+        }
+
+        // Iniciar ao carregar
+        startGame();
+    </script>
 </body>
-<html>
+</html>
