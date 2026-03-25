@@ -1,123 +1,30 @@
-<style>
-    /* ... seu CSS anterior ... */
-    .dodging { 
-        opacity: 0.5; 
-        filter: drop-shadow(0 0 10px #3498db); 
-        transform: scale(1.1);
-    }
-</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil do Herói</title>
+</head>
+<body>
 
-<script>
-    const player = document.getElementById('player');
-    const enemy = document.getElementById('enemy');
-    const playerFist = document.getElementById('player-fist');
-    const enemyFist = document.getElementById('enemy-fist');
-    const msg = document.getElementById('msg');
-    const flash = document.getElementById('flash-effect');
+    <header
+        <h1>Capitão Código</h1>
+    </header>
 
-    let pPos = { x: 150, y: 200 }, ePos = { x: 550, y: 200 };
-    let pHP = 100, eHP = 100;
-    let isAttacking = false, pIsDodging = false, eIsDodging = false;
+    <main>
+        <section>
+            <h2>Poderes Especiais</h2>
+            <ul>
+                <li>Digitação na velocidade da luz<li>
+                <li>Visão de Raio-X para bugs</li>
+                <li>Imunidade a café frio</li>
+            </ul>
+        </section>
 
-    function update() {
-        player.style.left = pPos.x + 'px';
-        player.style.top = pPos.y + 'px';
-        player.style.zIndex = Math.floor(pPos.y);
-        enemy.style.left = ePos.x + 'px';
-        enemy.style.top = ePos.y + 'px';
-        enemy.style.zIndex = Math.floor(ePos.y);
-    }
+        <section>
+            <p>Este herói protege a internet contra o caos do código mal escrito.<strong></p>
+        </section>
 
-    // Função de Esquiva
-    function dodge() {
-        if (pIsDodging) return;
-        pIsDodging = true;
-        player.classList.add('dodging');
-        
-        // Empurrãozinho na direção que estiver olhando (opcional)
-        pPos.x += 30; 
-        update();
+        <img src="heroi.jpg" alt="Foto do Herói"
+    </main>
 
-        setTimeout(() => {
-            pIsDodging = false;
-            player.classList.remove('dodging');
-        }, 300); // 300ms de invulnerabilidade
-    }
-
-    function attack(type) {
-        if (isAttacking) return;
-        isAttacking = true;
-        
-        const punchClass = type === 'J' ? 'jab' : type === 'K' ? 'direto' : 'hook';
-        playerFist.classList.add(punchClass);
-
-        // Lógica de acerto
-        setTimeout(() => {
-            const dist = Math.abs(pPos.x - ePos.x);
-            const distY = Math.abs(pPos.y - ePos.y);
-
-            // Inimigo tenta esquivar (30% de chance)
-            if (Math.random() < 0.3 && !eIsDodging) {
-                eIsDodging = true;
-                enemy.classList.add('dodging');
-                msg.innerText = "Oponente Esquivou!";
-                setTimeout(() => { eIsDodging = false; enemy.classList.remove('dodging'); }, 300);
-            }
-
-            if (dist < 150 && distY < 40 && !eIsDodging) {
-                eHP -= type === 'L' ? 15 : 8;
-                document.getElementById('enemy-hp').style.width = eHP + '%';
-                enemy.classList.add('shake');
-                flash.style.opacity = 0.3;
-                setTimeout(() => { enemy.classList.remove('shake'); flash.style.opacity = 0; }, 100);
-            }
-
-            setTimeout(() => {
-                playerFist.classList.remove(punchClass);
-                isAttacking = false;
-            }, 100);
-        }, 100);
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (pHP <= 0 || eHP <= 0) return;
-
-        const key = e.key.toLowerCase();
-        if (key === 'w') pPos.y -= 15;
-        if (key === 's') pPos.y += 15;
-        if (key === 'a') pPos.x -= 15;
-        if (key === 'd') pPos.x += 15;
-        
-        if (key === ' ') dodge(); // ESPAÇO para esquivar
-        if (key === 'j') attack('J');
-        if (key === 'k') attack('K');
-        if (key === 'l') attack('L');
-
-        update();
-    });
-
-    // IA Simples para o inimigo atacar
-    setInterval(() => {
-        if (pHP <= 0 || eHP <= 0) return;
-        
-        // Segue o jogador
-        if (ePos.x > pPos.x + 100) ePos.x -= 3;
-        if (ePos.y > pPos.y) ePos.y -= 2;
-        if (ePos.y < pPos.y) ePos.y += 2;
-
-        // Ataca se estiver perto
-        if (Math.abs(ePos.x - pPos.x) < 120 && Math.random() < 0.05) {
-            enemyFist.classList.add('jab');
-            setTimeout(() => {
-                if (!pIsDodging && Math.abs(ePos.y - pPos.y) < 30) {
-                    pHP -= 5;
-                    document.getElementById('player-hp').style.width = pHP + '%';
-                    player.classList.add('shake');
-                    setTimeout(() => player.classList.remove('shake'), 100);
-                }
-                enemyFist.classList.remove('jab');
-            }, 200);
-        }
-        update();
-    }, 50);
-</script>
+</body>
+<html>
