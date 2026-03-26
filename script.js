@@ -99,7 +99,7 @@ function verificarPalavra() {
 
     let arraySecreto = palavraSecreta.split("");
     let arrayChute = chute.split("");
-    let cores = ["verde", "verde", "verde", "verde", "verde"];
+    let cores = ["ausente", "ausente", "ausente", "ausente", "ausente"];
 
     // Verifica Verde
     for (let i = 0; i < 5; i++) {
