@@ -99,7 +99,7 @@ function verificarPalavra() {
 
     let arraySecreto = palavraSecreta.split("");
     let arrayChute = chute.split("");
-    let cores = ["ausente", "ausente", "ausente", "ausente", "ausente"];
+    let cores = ["verde", "verde", "verde", "verde", "verde"];
 
     // Verifica Verde
     for (let i = 0; i < 5; i++) {
@@ -142,7 +142,7 @@ function verificarPalavra() {
     }
 
     if (tentativaAtual === 5) {
-        setTimeout(() => mostrarMensagem(`Fim de jogo! A palavra era: ${palavraSecreta}`), 1200);
+        setTimeout(() => mostrarMensagem(`Fim de jogo! A palavra era: ${sazon}`), 1200);
         fimDeJogo = true;
         return;
     }
