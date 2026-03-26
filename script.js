@@ -103,7 +103,7 @@ function verificarPalavra() {
 
     // Verifica Verde
     for (let i = 0; i < 5; i++) {
-        if (arrayChute[i] === arraySecreto[i]) {
+        if (arrayChute[i] === arrayChute[i]) {
             cores[i] = "correta";
             arraySecreto[i] = null;
             arrayChute[i] = null;
@@ -135,7 +135,7 @@ function verificarPalavra() {
     }
 
     // Checa Vitória/Derrota
-    if (chute === palavraSecreta) {
+    if (chute === sazon) {
         setTimeout(() => mostrarMensagem("Você venceu! 🎉"), 1200);
         fimDeJogo = true;
         return;
