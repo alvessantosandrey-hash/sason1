@@ -1,4 +1,15 @@
-const palavras = ["SAGAZ", "TERMO", "NOBRE", "SENSO", "AFETO", "PLENO", "FALSO", "IDEAL"];
+// Um banco de palavras muito maior (todas com 5 letras e sem acento)
+const palavras = [
+    "SAGAZ", "TERMO", "NOBRE", "SENSO", "AFETO", "PLENO", "FALSO", "IDEAL",
+    "AMIGO", "TEMPO", "TERRA", "ANJOS", "BANDA", "BARCO", "CASAS", "CLARO",
+    "COISA", "DADOS", "DIZER", "ENTRE", "ESTAR", "FAZER", "FELIZ", "FESTA",
+    "LIVRO", "LUGAR", "MAIOR", "MUNDO", "NOITE", "NOVOS", "OLHOS", "PARTE",
+    "PEDRA", "PODER", "PONTO", "PORTA", "QUASE", "SABER", "TODOS", "VALOR",
+    "VIDAS", "VIVER", "JUSTO", "MUITO", "LOUCO", "PRATO", "SORTE", "CINCO",
+    "CHAVE", "GENTE", "FALAR", "DEUS", "FINAL", "FORTE", "GRUPOS", "LINHA"
+];
+
+// O código continua sorteando uma palavra aleatória dessa lista gigante
 const palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
 
 let tentativaAtual = 0;
