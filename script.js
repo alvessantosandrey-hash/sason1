@@ -1,5 +1,5 @@
-// Removemos a lista aleatória e fixamos a palavra secreta
-const palavraSecreta = "SAZON";
+const palavras = ["SAGAZ", "TERMO", "NOBRE", "SENSO", "AFETO", "PLENO", "FALSO", "IDEAL"];
+const palavraSecreta = palavras[Math.floor(Math.random() * palavras.length)];
 
 let tentativaAtual = 0;
 let posicaoLetra = 0;
@@ -101,7 +101,7 @@ function verificarPalavra() {
     let arrayChute = chute.split("");
     let cores = ["ausente", "ausente", "ausente", "ausente", "ausente"];
 
-    // Verifica Verde (Corrigido para comparar o chute com o segredo)
+    // Verifica Verde
     for (let i = 0; i < 5; i++) {
         if (arrayChute[i] === arraySecreto[i]) {
             cores[i] = "correta";
@@ -134,7 +134,7 @@ function verificarPalavra() {
         }, i * 200); 
     }
 
-    // Checa Vitória/Derrota (Corrigido para usar a variável 'palavraSecreta')
+    // Checa Vitória/Derrota
     if (chute === palavraSecreta) {
         setTimeout(() => mostrarMensagem("Você venceu! 🎉"), 1200);
         fimDeJogo = true;
